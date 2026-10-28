@@ -12,7 +12,7 @@ type ThemeContextValue = {
   setPreference: (p: ThemePreference) => void;
 };
 
-const STORAGE_KEY = 'nookowl.theme';
+const STORAGE_KEY = 'nooksowl.theme';
 
 const ThemeContext = createContext<ThemeContextValue>({
   colors: light,

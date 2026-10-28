@@ -72,7 +72,7 @@ export default function Welcome() {
           {!sentTo ? (
             <>
               <View style={{ gap: 8 }}>
-                <T variant="title">Welcome to Nook Owl</T>
+                <T variant="title">Welcome to Nooks Owl</T>
                 <T muted>A quiet corner to talk with kind strangers, about anything.</T>
               </View>
               <View style={{ gap: 14 }}>
@@ -96,7 +96,7 @@ export default function Welcome() {
               <T variant="title">Check your email</T>
               <T>
                 We sent a sign-in link to <T style={{ fontFamily: fonts.bodySemi }}>{sentTo}</T>. Open it{' '}
-                <T style={{ fontFamily: fonts.bodySemi }}>on this phone</T> and Nook Owl will open, signed in.
+                <T style={{ fontFamily: fonts.bodySemi }}>on this phone</T> and Nooks Owl will open, signed in.
               </T>
               <T variant="small" muted>Can’t find it? Check your spam folder. The link works once and expires after an hour.</T>
               <Button
@@ -119,7 +119,7 @@ export default function Welcome() {
 
           {shownError ? <T style={{ color: colors.danger }}>{shownError}</T> : null}
           <T variant="small" muted>
-            Nook Owl is for people aged 18 and over. You’ll pick a nickname next; your email is never shown.
+            Nooks Owl is for people aged 18 and over. You’ll pick a nickname next; your email is never shown.
           </T>
         </ScrollView>
       </KeyboardAvoidingView>

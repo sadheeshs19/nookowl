@@ -6,7 +6,7 @@ import { useAuth } from '../../lib/auth';
 import { useTheme } from '../../theme/ThemeProvider';
 
 /**
- * The sign-in email link opens nookowl://auth/callback. The AuthProvider reads
+ * The sign-in email link opens nooksowl://auth/callback. The AuthProvider reads
  * the tokens from that link; this screen just waits, then moves on.
  */
 export default function AuthCallback() {

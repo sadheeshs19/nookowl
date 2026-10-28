@@ -15,7 +15,7 @@ import { useTheme } from '../theme/ThemeProvider';
 const STAGE = 240;
 const SCALE = STAGE / 200;
 
-/** The owl drawn on a 200x200 grid. Its eyes are the two "o"s of "nook". */
+/** The owl drawn on a 200x200 grid. Its eyes are the two "o"s of "nooks". */
 export function OwlBody({ size = 200 }: { size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 200 200">
@@ -100,7 +100,7 @@ export function OwlSplash({ onDone }: { onDone: () => void }) {
   return (
     <Animated.View
       accessible
-      accessibilityLabel="Nook Owl"
+      accessibilityLabel="Nooks Owl"
       style={[StyleSheet.absoluteFill, styles.root, { backgroundColor: isDark ? '#121317' : '#FFF8F3' }, rootStyle]}
     >
       <View style={{ width: STAGE, height: STAGE }}>
@@ -116,9 +116,10 @@ export function OwlSplash({ onDone }: { onDone: () => void }) {
         <Animated.View style={[StyleSheet.absoluteFill, lettersStyle]} pointerEvents="none">
           <Text style={[styles.letter, { color: letterColor, left: 82 * SCALE - 19 * SCALE - 52 }]}>n</Text>
           <Text style={[styles.letter, { color: letterColor, left: 118 * SCALE + 19 * SCALE + 6 }]}>k</Text>
+          <Text style={[styles.letter, { color: letterColor, left: 118 * SCALE + 19 * SCALE + 40 }]}>s</Text>
         </Animated.View>
       </View>
-      <Animated.Text style={[styles.wordmark, { color: colors.muted }, bodyStyle]}>Nook Owl</Animated.Text>
+      <Animated.Text style={[styles.wordmark, { color: colors.muted }, bodyStyle]}>Nooks Owl</Animated.Text>
     </Animated.View>
   );
 }

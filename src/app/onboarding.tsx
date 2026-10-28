@@ -42,7 +42,7 @@ export default function Onboarding() {
       return;
     }
     if (year > thisYear - 18) {
-      setError('Sorry, Nook Owl is only for people aged 18 and over.');
+      setError('Sorry, Nooks Owl is only for people aged 18 and over.');
       return;
     }
     if (languages.length === 0) {

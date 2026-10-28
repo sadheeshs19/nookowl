@@ -1,22 +1,22 @@
 {
   "expo": {
-    "name": "Nook Owl",
-    "slug": "nookowl",
-    "scheme": "nookowl",
+    "name": "Nooks Owl",
+    "slug": "nooksowl",
+    "scheme": "nooksowl",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.nookowl.app",
+      "bundleIdentifier": "com.nooksowl.app",
       "supportsTablet": false,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Nook Owl uses your microphone for voice calls and voice notes.",
+        "NSMicrophoneUsageDescription": "Nooks Owl uses your microphone for voice calls and voice notes.",
         "UIBackgroundModes": ["audio"]
       }
     },
     "android": {
-      "package": "com.nookowl.app",
+      "package": "com.nooksowl.app",
       "adaptiveIcon": {
         "backgroundColor": "#FDEBE2",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -39,7 +39,7 @@
       [
         "expo-audio",
         {
-          "microphonePermission": "Nook Owl uses your microphone for voice calls and voice notes."
+          "microphonePermission": "Nooks Owl uses your microphone for voice calls and voice notes."
         }
       ],
       "expo-secure-store",

@@ -78,7 +78,7 @@ export default function Topics() {
   const header = (
     <View style={{ gap: 14, paddingBottom: 12 }}>
       <View style={{ gap: 4 }}>
-        <T variant="caps" muted>Nook Owl</T>
+        <T variant="caps" muted>Nooks Owl</T>
         <T variant="title">What do you want to talk about?</T>
       </View>
 

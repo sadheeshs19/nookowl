@@ -1,4 +1,4 @@
--- Nook Owl: initial schema
+-- Nooks Owl: initial schema
 -- Run with `supabase db push`, or paste into the Supabase SQL editor.
 
 -- ---------------------------------------------------------------------------
@@ -17,12 +17,12 @@ create table public.profiles (
   created_at timestamptz not null default now()
 );
 
--- Everyone on Nook Owl must be 18 or older.
+-- Everyone on Nooks Owl must be 18 or older.
 create or replace function public.enforce_adult()
 returns trigger language plpgsql as $$
 begin
   if new.birth_year > extract(year from now())::int - 18 then
-    raise exception 'Nook Owl is for people aged 18 and over';
+    raise exception 'Nooks Owl is for people aged 18 and over';
   end if;
   return new;
 end $$;

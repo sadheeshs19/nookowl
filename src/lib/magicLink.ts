@@ -1,7 +1,7 @@
 import * as Linking from 'expo-linking';
 import { supabase } from './supabase';
 
-/** Where the magic link sends people back to. Add `nookowl://**` to Supabase's Redirect URLs. */
+/** Where the magic link sends people back to. Add `nooksowl://**` to Supabase's Redirect URLs. */
 export const authRedirectUrl = () => Linking.createURL('auth/callback');
 
 /** Reads `a=1&b=2` pairs from both the query string and the #fragment of a URL. */

@@ -1,4 +1,4 @@
-# Nook Owl
+# Nooks Owl
 
 A quiet corner to talk with kind strangers. Post a topic, swipe through people who are open to calls, send call requests, and keep chatting with text and voice notes.
 
@@ -6,7 +6,7 @@ Built with Expo (SDK 58) + Expo Router, Supabase (auth, database, realtime, stor
 
 ## What's in this first version
 
-- **Owl splash**: "nook" appears, the two o's blink into the owl's eyes, and the owl settles into its nest.
+- **Owl splash**: "nooks" appears, the two o's blink into the owl's eyes, and the owl settles into its nest.
 - **Sign up** with an email magic link that opens the app, then a nickname, birth year (18+ only), languages and interests.
 - **Topics**: scrolling feed with search, trending tags, likes and comments. No calls from topics, only messages.
 - **People**: swipe right to send a call request, left to pass, or tap Call now. Only people who switched on "Open to calls" appear.
@@ -32,10 +32,10 @@ cp .env.example .env
 1. Create a project at [supabase.com](https://supabase.com).
 2. Run the schema: open **SQL Editor**, paste `supabase/migrations/20261027000000_init.sql`, and run it. (Or with the Supabase CLI: `supabase link` then `supabase db push`.)
 3. **Authentication → Sign In / Providers → Email**: keep Email enabled.
-4. **Authentication → URL Configuration → Redirect URLs → Add URL**: add `nookowl://**`. This lets the sign-in email link open the app. (No email template changes are needed; the default Magic Link email works.)
+4. **Authentication → URL Configuration → Redirect URLs → Add URL**: add `nooksowl://**`. This lets the sign-in email link open the app. (No email template changes are needed; the default Magic Link email works.)
 5. Copy **Project URL** and **anon public key** (Project Settings → API) into `.env`.
 
-Sign-in works by magic link: the app emails a link, and tapping it **on the same phone** opens Nook Owl signed in. Supabase's built-in email sender only sends a few emails per hour, so connect your own SMTP (Authentication → Emails → SMTP Settings) before launch.
+Sign-in works by magic link: the app emails a link, and tapping it **on the same phone** opens Nooks Owl signed in. Supabase's built-in email sender only sends a few emails per hour, so connect your own SMTP (Authentication → Emails → SMTP Settings) before launch.
 
 ### 3. Agora
 
