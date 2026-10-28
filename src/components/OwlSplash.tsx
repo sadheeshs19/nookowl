@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -9,14 +9,44 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
-import { fonts } from '../theme/colors';
+import {
+  BEAK,
+  GLYPH_K,
+  GLYPH_N,
+  GLYPH_OWL,
+  GLYPH_S,
+  LETTERS_VIEWBOX,
+  LETTERS_VIEWBOX_X,
+  TUFT_LEFT,
+  TUFT_RIGHT,
+  WORD_CENTER_X,
+} from './brandPaths';
 import { useTheme } from '../theme/ThemeProvider';
 
 const STAGE = 240;
 const SCALE = STAGE / 200;
+/** At the start the word "nooks" is centred; the owl is centred at the end. */
+const WORD_SHIFT = -(WORD_CENTER_X - 100) * SCALE;
 
-/** The owl drawn on a 200x200 grid. Its eyes are the two "o"s of "nooks". */
-export function OwlBody({ size = 200 }: { size?: number }) {
+function OwlEyes({ ink = '#16181D', pupils = true }: { ink?: string; pupils?: boolean }) {
+  return (
+    <>
+      <Circle cx={82} cy={84} r={16} fill="#FFFFFF" stroke={ink} strokeWidth={5} />
+      <Circle cx={118} cy={84} r={16} fill="#FFFFFF" stroke={ink} strokeWidth={5} />
+      {pupils ? (
+        <>
+          <Circle cx={84} cy={86} r={6.5} fill="#16181D" />
+          <Circle cx={120} cy={86} r={6.5} fill="#16181D" />
+          <Circle cx={86} cy={83} r={2} fill="#FFFFFF" />
+          <Circle cx={122} cy={83} r={2} fill="#FFFFFF" />
+        </>
+      ) : null}
+    </>
+  );
+}
+
+/** The owl in its nest, drawn on a 200x200 grid. Its eyes are the two "o"s of "nooks". */
+export function OwlBody({ size = 200, withEyes = true }: { size?: number; withEyes?: boolean }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 200 200">
       {/* ear tufts */}
@@ -29,8 +59,9 @@ export function OwlBody({ size = 200 }: { size?: number }) {
       {/* wings */}
       <Path d="M52 100 Q44 130 64 146 Q60 120 66 104Z" fill="#9A3412" />
       <Path d="M148 100 Q156 130 136 146 Q140 120 134 104Z" fill="#9A3412" />
+      {withEyes ? <OwlEyes /> : null}
       {/* beak */}
-      <Path d="M94 98 L106 98 L100 109Z" fill="#F59E0B" />
+      <Path d={BEAK} fill="#F59E0B" />
       {/* nest, drawn last so the owl sits inside it */}
       <Path d="M30 136 Q100 156 170 136 Q168 184 100 190 Q32 184 30 136Z" fill="#8B5A2B" />
       <Path d="M30 136 Q100 156 170 136" stroke="#A86B35" strokeWidth={7} fill="none" strokeLinecap="round" />
@@ -45,57 +76,42 @@ export function OwlBody({ size = 200 }: { size?: number }) {
   );
 }
 
-function Eyes({ pupils }: { pupils: boolean }) {
-  return (
-    <Svg width={STAGE} height={STAGE} viewBox="0 0 200 200">
-      <Circle cx={82} cy={84} r={16} fill="#FFFFFF" stroke="#16181D" strokeWidth={5} />
-      <Circle cx={118} cy={84} r={16} fill="#FFFFFF" stroke="#16181D" strokeWidth={5} />
-      {pupils ? (
-        <>
-          <Circle cx={84} cy={86} r={6.5} fill="#16181D" />
-          <Circle cx={120} cy={86} r={6.5} fill="#16181D" />
-          <Circle cx={86} cy={83} r={2} fill="#FFFFFF" />
-          <Circle cx={122} cy={83} r={2} fill="#FFFFFF" />
-        </>
-      ) : null}
-    </Svg>
-  );
-}
-
+/**
+ * Opening animation. The first frame matches the native splash image exactly
+ * (assets/splash-icon.png): the "nooks" wordmark whose o's are the owl's eyes.
+ * The eyes blink, the letters fade away, and the owl appears around the eyes
+ * in its nest.
+ */
 export function OwlSplash({ onDone }: { onDone: () => void }) {
-  const { colors, isDark } = useTheme();
-  const letters = useSharedValue(0);
-  const pupils = useSharedValue(0);
+  const { isDark } = useTheme();
+  const ink = isDark ? '#F3F4F6' : '#16181D';
+  const accent = isDark ? '#FB923C' : '#C2410C';
+
+  const letters = useSharedValue(1);
   const blink = useSharedValue(1);
+  const shift = useSharedValue(WORD_SHIFT);
   const body = useSharedValue(0);
   const fade = useSharedValue(1);
 
   useEffect(() => {
-    const ease = Easing.out(Easing.cubic);
-    letters.value = withSequence(
-      withTiming(1, { duration: 400, easing: ease }),
-      withDelay(1000, withTiming(0, { duration: 400 })),
-    );
-    pupils.value = withDelay(650, withTiming(1, { duration: 220 }));
-    blink.value = withDelay(
-      1050,
-      withSequence(withTiming(0.1, { duration: 110 }), withTiming(1, { duration: 140 })),
-    );
-    body.value = withDelay(1500, withTiming(1, { duration: 550, easing: ease }));
-    fade.value = withDelay(2700, withTiming(0, { duration: 350 }));
-    const t = setTimeout(onDone, 3100);
+    const ease = Easing.inOut(Easing.cubic);
+    blink.value = withDelay(650, withSequence(withTiming(0.1, { duration: 110 }), withTiming(1, { duration: 150 })));
+    letters.value = withDelay(1250, withTiming(0, { duration: 380 }));
+    shift.value = withDelay(1250, withTiming(0, { duration: 600, easing: ease }));
+    body.value = withDelay(1350, withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) }));
+    fade.value = withDelay(2600, withTiming(0, { duration: 350 }));
+    const t = setTimeout(onDone, 3000);
     return () => clearTimeout(t);
-  }, [blink, body, fade, letters, onDone, pupils]);
+  }, [blink, body, fade, letters, onDone, shift]);
 
+  const stageStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shift.value }] }));
   const lettersStyle = useAnimatedStyle(() => ({ opacity: letters.value }));
-  const pupilStyle = useAnimatedStyle(() => ({ opacity: pupils.value, transform: [{ scaleY: blink.value }] }));
+  const pupilStyle = useAnimatedStyle(() => ({ transform: [{ scaleY: blink.value }] }));
   const bodyStyle = useAnimatedStyle(() => ({
     opacity: body.value,
-    transform: [{ translateY: (1 - body.value) * 24 }, { scale: 0.92 + body.value * 0.08 }],
+    transform: [{ translateY: (1 - body.value) * 18 }, { scale: 0.92 + body.value * 0.08 }],
   }));
   const rootStyle = useAnimatedStyle(() => ({ opacity: fade.value }));
-
-  const letterColor = isDark ? '#F3F4F6' : '#16181D';
 
   return (
     <Animated.View
@@ -103,37 +119,46 @@ export function OwlSplash({ onDone }: { onDone: () => void }) {
       accessibilityLabel="Nooks Owl"
       style={[StyleSheet.absoluteFill, styles.root, { backgroundColor: isDark ? '#121317' : '#FFF8F3' }, rootStyle]}
     >
-      <View style={{ width: STAGE, height: STAGE }}>
+      <Animated.View style={[{ width: STAGE, height: STAGE }, stageStyle]}>
         <Animated.View style={[StyleSheet.absoluteFill, bodyStyle]}>
-          <OwlBody size={STAGE} />
+          <OwlBody size={STAGE} withEyes={false} />
         </Animated.View>
-        <View style={StyleSheet.absoluteFill}>
-          <Eyes pupils={false} />
+
+        <Animated.View
+          pointerEvents="none"
+          style={[{ position: 'absolute', top: 0, left: LETTERS_VIEWBOX_X * SCALE, width: 280 * SCALE, height: STAGE }, lettersStyle]}
+        >
+          <Svg width={280 * SCALE} height={STAGE} viewBox={LETTERS_VIEWBOX}>
+            <Path d={TUFT_LEFT} fill={accent} />
+            <Path d={TUFT_RIGHT} fill={accent} />
+            <Path d={GLYPH_N} fill={ink} />
+            <Path d={GLYPH_K} fill={ink} />
+            <Path d={GLYPH_S} fill={ink} />
+            <Path d={BEAK} fill="#F59E0B" />
+            <Path d={GLYPH_OWL} fill={accent} />
+          </Svg>
+        </Animated.View>
+
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Svg width={STAGE} height={STAGE} viewBox="0 0 200 200">
+            <OwlEyes ink={ink} pupils={false} />
+          </Svg>
         </View>
-        <Animated.View style={[StyleSheet.absoluteFill, pupilStyle]}>
-          <Eyes pupils />
+        <Animated.View style={[StyleSheet.absoluteFill, styles.pupils, pupilStyle]} pointerEvents="none">
+          <Svg width={STAGE} height={STAGE} viewBox="0 0 200 200">
+            <Circle cx={84} cy={86} r={6.5} fill="#16181D" />
+            <Circle cx={120} cy={86} r={6.5} fill="#16181D" />
+            <Circle cx={86} cy={83} r={2} fill="#FFFFFF" />
+            <Circle cx={122} cy={83} r={2} fill="#FFFFFF" />
+          </Svg>
         </Animated.View>
-        <Animated.View style={[StyleSheet.absoluteFill, lettersStyle]} pointerEvents="none">
-          <Text style={[styles.letter, { color: letterColor, left: 82 * SCALE - 19 * SCALE - 52 }]}>n</Text>
-          <Text style={[styles.letter, { color: letterColor, left: 118 * SCALE + 19 * SCALE + 6 }]}>k</Text>
-          <Text style={[styles.letter, { color: letterColor, left: 118 * SCALE + 19 * SCALE + 40 }]}>s</Text>
-        </Animated.View>
-      </View>
-      <Animated.Text style={[styles.wordmark, { color: colors.muted }, bodyStyle]}>Nooks Owl</Animated.Text>
+      </Animated.View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { alignItems: 'center', justifyContent: 'center', zIndex: 100 },
-  letter: {
-    position: 'absolute',
-    top: 84 * SCALE - 44,
-    width: 46,
-    fontFamily: fonts.display,
-    fontSize: 64,
-    lineHeight: 80,
-    textAlign: 'center',
-  },
-  wordmark: { marginTop: 8, fontFamily: fonts.bodySemi, fontSize: 15, letterSpacing: 1 },
+  // Blink around the eyes' height, not the middle of the stage.
+  pupils: { transformOrigin: ['50%', `${(85 / 200) * 100}%`, 0] },
 });
