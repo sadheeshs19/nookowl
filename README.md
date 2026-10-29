@@ -40,7 +40,7 @@ cp .env.example .env
 
 Sign-in works by magic link: the app emails a link, and tapping it **on the same phone** opens Nooks Owl signed in. Supabase's built-in email sender only sends a few emails per hour, so connect your own SMTP (Authentication → Emails → SMTP Settings) before launch.
 
-Then run the other migrations the same way, in order: `20261029000000_credits_and_push.sql` (credits, call-time rules and push notifications) `20261029120000_request_calls_ring.sql` (an accepted call request rings the sender; minutes start only when they pick up) `20261030000000_free_minutes_30.sql` (30 free minutes a day) `20261030010000_profile_images.sql` (profile pictures and cover images) and `20261030020000_hoots.sql` (hoots).
+Then run the other migrations the same way, in order: `20261029000000_credits_and_push.sql` (credits, call-time rules and push notifications) `20261029120000_request_calls_ring.sql` (an accepted call request rings the sender; minutes start only when they pick up) `20261030000000_free_minutes_30.sql` (30 free minutes a day) `20261030010000_profile_images.sql` (profile pictures and cover images) `20261030020000_hoots.sql` (hoots) and `20261030030000_moderation.sql` (word filter, moderators, suspensions).
 
 ### 3. Agora
 
@@ -91,6 +91,12 @@ To test calls you need two accounts on two phones (or a phone and an emulator).
 - **Delete account**: Profile → Delete account. Deploy the function: `npx supabase functions deploy delete-account` (Verify JWT off; it checks the login itself).
 - **Review login**: reviewers can't open a sign-in email, so create review accounts with a password (Supabase → Authentication → Users → Add user → Create new user, tick Auto Confirm). The Welcome screen has “Have a password? Sign in with it”.
 - **Terms, Privacy, Support**: in the app under Profile → Help and account, and on the web from `docs/` (GitHub Pages). Edit `src/legal/content.json`, then run `npm run legal` to rebuild the web pages.
+
+## Moderation
+
+- **Word filter**: topics, comments, messages, nicknames, bios and request notes are checked against `public.banned_words` in the database. Add words in the Table Editor (lower case).
+- **Moderators**: add yourself with `insert into public.admins (user_id) values ('<your user id>');` in the SQL Editor. Moderators get a notification for every new report and see **Moderation: review reports** in Profile, with Dismiss, Hide topic / Delete comment, and Suspend. Handle reports within 24 hours.
+- **Ads consent**: the app asks for consent with Google's UMP message before starting ads. Create a GDPR message and an iOS IDFA explainer message in AdMob → Privacy & messaging.
 
 ## Project layout
 

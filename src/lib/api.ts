@@ -5,6 +5,7 @@ import type {
   Conversation,
   Credits,
   ConversationListItem,
+  AdminReport,
   FeedTopic,
   HootForMe,
   HootState,
@@ -105,6 +106,7 @@ export async function getPeopleOpenToCalls(): Promise<Profile[]> {
       .from('profiles')
       .select('*')
       .eq('open_to_calls', true)
+      .eq('banned', false)
       .neq('id', id)
       .order('created_at', { ascending: false })
       .limit(50),
@@ -381,4 +383,17 @@ export async function deleteMyAccount() {
     throw new Error(body?.error ?? error.message);
   }
   await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+}
+
+// ---------------------------------------------------------------- moderation
+export async function isAdmin(): Promise<boolean> {
+  return (check(await supabase.rpc('is_admin')) as boolean) === true;
+}
+
+export async function adminListReports(): Promise<AdminReport[]> {
+  return check(await supabase.rpc('admin_list_reports')) as AdminReport[];
+}
+
+export async function adminResolveReport(reportId: string, action: 'dismiss' | 'hide_content' | 'ban_user') {
+  check(await supabase.rpc('admin_resolve_report', { p_report_id: reportId, p_action: action }));
 }

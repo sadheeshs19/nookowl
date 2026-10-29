@@ -9,6 +9,8 @@ export type Profile = {
   open_to_calls: boolean;
   avatar_path: string | null;
   cover_path: string | null;
+  /** Suspended by a moderator. */
+  banned?: boolean;
   created_at: string;
 };
 
@@ -121,4 +123,22 @@ export type HootForMe = {
   created_at: string;
   total: number;
   conversation_id: string;
+};
+
+/** An open report, as moderators see it. */
+export type AdminReport = {
+  id: string;
+  created_at: string;
+  reason: string;
+  reporter: string;
+  target_user_id: string | null;
+  target_username: string | null;
+  target_banned: boolean;
+  reports_against_user: number;
+  topic_id: string | null;
+  topic_body: string | null;
+  topic_hidden: boolean | null;
+  comment_id: string | null;
+  comment_body: string | null;
+  call_id: string | null;
 };

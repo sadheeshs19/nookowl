@@ -72,7 +72,9 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-3940256099942544~3347511713",
-          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "delayAppMeasurementInit": true,
+          "userTrackingUsageDescription": "Allowing tracking lets Nooks Owl show ads that are more relevant to you. Ads are how you earn extra call minutes."
         }
       ],
       [

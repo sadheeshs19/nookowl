@@ -4,9 +4,10 @@ import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, V
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Empty, Segmented, T } from '../../components/ui';
-import { deleteMyAccount, deleteTopic, getFeed, setOpenToCalls, setProfileImage } from '../../lib/api';
+import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setOpenToCalls, setProfileImage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
+import { showAdPrivacyOptions } from '../../lib/ads';
 import { unregisterPush } from '../../lib/push';
 import { timeAgo } from '../../lib/format';
 import { deleteProfileImage, pickAndUploadProfileImage, profileImageUrl, type ProfileImageKind } from '../../lib/images';
@@ -22,10 +23,12 @@ export default function ProfileScreen() {
   const [open, setOpen] = useState(profile?.open_to_calls ?? false);
   const [uploading, setUploading] = useState<ProfileImageKind | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [admin, setAdmin] = useState(false);
 
   const load = useCallback(async () => {
     if (!profile) return;
     setOpen(profile.open_to_calls);
+    isAdmin().then(setAdmin, () => {});
     try {
       setTopics(await getFeed(undefined, profile.id));
     } catch {
@@ -274,6 +277,19 @@ export default function ProfileScreen() {
           ]}
         />
 
+        {profile.banned ? (
+          <View style={{ padding: 14, borderRadius: 16, backgroundColor: colors.warnBg }}>
+            <T variant="label" style={{ color: colors.warnFg }}>Your account is suspended</T>
+            <T variant="small" style={{ color: colors.warnFg }}>
+              A moderator suspended it for breaking the Terms of Use. You can’t post, message or call. Contact Support if you think this is a mistake.
+            </T>
+          </View>
+        ) : null}
+
+        {admin ? (
+          <Button kind="secondary" title="Moderation: review reports" icon={<Icon name="flag" size={18} color={colors.text} />} onPress={() => router.push('/admin')} />
+        ) : null}
+
         <T variant="caps" muted>Help and account</T>
         <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
           {(
@@ -298,6 +314,23 @@ export default function ProfileScreen() {
               </View>
             </Pressable>
           ))}
+          <Pressable
+            accessibilityRole="button"
+            onPress={async () => {
+              if (!(await showAdPrivacyOptions())) {
+                Alert.alert('Ad choices', 'There are no ad choices to change in your region. On iPhone you can also turn off tracking in Settings → Privacy & Security → Tracking.');
+              }
+            }}
+            style={({ pressed }) => ({
+              flexDirection: 'row', alignItems: 'center', minHeight: 50, paddingHorizontal: 14,
+              borderTopWidth: 1, borderTopColor: colors.border, opacity: pressed ? 0.7 : 1,
+            })}
+          >
+            <T style={{ flex: 1 }}>Ad choices</T>
+            <View style={{ transform: [{ rotate: '180deg' }] }}>
+              <Icon name="back" size={18} color={colors.muted} />
+            </View>
+          </Pressable>
         </View>
 
         <Button

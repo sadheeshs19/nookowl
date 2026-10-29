@@ -65,6 +65,8 @@ export function CallWatcher() {
     const data = lastResponse.notification.request.content.data as Partial<PushData> | undefined;
     if ((data?.type === 'message' || data?.type === 'hoot') && data.conversationId) {
       router.push({ pathname: '/chat/[id]', params: { id: data.conversationId } });
+    } else if (data?.type === 'report') {
+      router.push('/admin');
     } else if (data?.type === 'request') {
       router.navigate('/(tabs)/requests');
     } else if (data?.type === 'call' && data.callId) {

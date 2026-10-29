@@ -14,7 +14,7 @@ import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CallWatcher } from '../components/CallWatcher';
 import { OwlSplash } from '../components/OwlSplash';
-import mobileAds from 'react-native-google-mobile-ads';
+import { prepareAds } from '../lib/ads';
 import { AuthProvider } from '../lib/auth';
 import { CreditsProvider } from '../lib/credits';
 import { ThemeProvider, useTheme } from '../theme/ThemeProvider';
@@ -61,10 +61,8 @@ export default function RootLayout() {
   }, [loaded]);
 
   useEffect(() => {
-    // Start loading rewarded ads early so "watch an ad" is instant.
-    mobileAds()
-      .initialize()
-      .catch(() => {});
+    // Ask for ad consent where needed, then start ads early so "watch an ad" is instant.
+    prepareAds();
   }, []);
 
   if (!loaded) return null;
