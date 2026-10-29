@@ -25,7 +25,8 @@ export type IconName =
   | 'chevronDown'
   | 'settings'
   | 'filter'
-  | 'stop';
+  | 'stop'
+  | 'check';
 
 export function Icon({
   name,
@@ -88,6 +89,7 @@ export function Icon({
           <Path {...common} d="M20 20l-4-4" />
         </>
       )}
+      {name === 'check' && <Path {...common} d="M5 12.5l4.5 4.5L19 7.5" />}
       {name === 'close' && <Path {...common} d="M6 6l12 12M18 6L6 18" />}
       {name === 'back' && <Path {...common} d="M15 6l-6 6 6 6" />}
       {name === 'chevronDown' && <Path {...common} d="M6 9l6 6 6-6" />}

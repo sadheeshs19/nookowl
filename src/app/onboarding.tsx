@@ -2,12 +2,12 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LanguagePicker } from '../components/LanguagePicker';
 import { Button, Chip, Field, T } from '../components/ui';
 import { isUsernameTaken, saveProfile } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { useTheme } from '../theme/ThemeProvider';
 
-const LANGUAGES = ['English', 'Hindi', 'Malayalam', 'Tamil', 'Telugu', 'Kannada', 'Bengali', 'Marathi', 'Urdu', 'French', 'Spanish', 'German', 'Arabic', 'Japanese'];
 const INTERESTS = ['Just chat', 'Languages', 'Movies', 'Music', 'Books', 'Cricket', 'Football', 'Travel', 'Food', 'Careers', 'Tech', 'Fitness', 'Gaming', 'Night owl'];
 
 export default function Onboarding() {
@@ -100,14 +100,7 @@ export default function Onboarding() {
           <Field label="City (optional)" value={city} onChangeText={setCity} placeholder="Kochi" />
           <Field label="A line about you (optional)" value={bio} onChangeText={setBio} placeholder="Movies, travel stories, or honestly anything." maxLength={160} multiline />
 
-          <View style={{ gap: 10 }}>
-            <T variant="label">Languages you can talk in</T>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {LANGUAGES.map((l) => (
-                <Chip key={l} label={l} selected={languages.includes(l)} onPress={() => toggle(languages, setLanguages, l)} />
-              ))}
-            </View>
-          </View>
+          <LanguagePicker label="Languages you can talk in" value={languages} onChange={setLanguages} />
 
           <View style={{ gap: 10 }}>
             <T variant="label">What do you like talking about?</T>
