@@ -25,6 +25,7 @@ import {
   startCall,
 } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
+import { useCredits } from '../../lib/credits';
 import { clock } from '../../lib/format';
 import type { Conversation, Message, Profile } from '../../lib/types';
 import { useRealtime } from '../../lib/useRealtime';
@@ -34,6 +35,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 export default function Chat() {
   const { colors } = useTheme();
   const { session } = useAuth();
+  const { ensureCanCall } = useCredits();
   const me = session?.user.id;
   const { id, topic } = useLocalSearchParams<{ id: string; topic?: string }>();
   const [conv, setConv] = useState<Conversation | null>(null);
@@ -132,6 +134,7 @@ export default function Chat() {
 
   const call = async () => {
     if (!other) return;
+    if (!(await ensureCanCall())) return;
     try {
       const c = await startCall(other.id);
       router.push({ pathname: '/call/[id]', params: { id: c.id, name: other.username } });

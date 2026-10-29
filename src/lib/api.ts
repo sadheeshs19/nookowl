@@ -3,6 +3,7 @@ import type {
   Call,
   CallRequest,
   Conversation,
+  Credits,
   ConversationListItem,
   FeedTopic,
   Message,
@@ -173,10 +174,55 @@ export async function rateCall(call: Call, rating: number) {
   check(await supabase.from('calls').update({ [field]: rating }).eq('id', call.id));
 }
 
-export async function getAgoraToken(callId: string): Promise<{ token: string; channel: string; appId: string }> {
+export async function getAgoraToken(
+  callId: string,
+): Promise<{ token: string; channel: string; appId: string; secondsLeft: number }> {
   const { data, error } = await supabase.functions.invoke('agora-token', { body: { callId } });
-  if (error) throw new Error(error.message);
-  return data as { token: string; channel: string; appId: string };
+  if (error) {
+    // The function explains what went wrong in its JSON body.
+    const ctx = (error as { context?: Response }).context;
+    const body = ctx && typeof ctx.json === 'function' ? await ctx.json().catch(() => null) : null;
+    throw new Error(body?.error ?? error.message);
+  }
+  return data as { token: string; channel: string; appId: string; secondsLeft: number };
+}
+
+// ---------------------------------------------------------------- credits
+export async function getCredits(): Promise<Credits> {
+  const rows = check(await supabase.rpc('get_credits')) as Credits[];
+  return rows[0];
+}
+
+export async function claimAdReward(): Promise<Credits> {
+  const rows = check(await supabase.rpc('claim_ad_reward')) as Credits[];
+  return rows[0];
+}
+
+// ---------------------------------------------------------------- push
+export async function savePushToken(token: string) {
+  const user_id = await me();
+  check(await supabase.from('push_tokens').upsert({ user_id, token, updated_at: new Date().toISOString() }));
+}
+
+export async function deletePushToken() {
+  const user_id = await me();
+  check(await supabase.from('push_tokens').delete().eq('user_id', user_id));
+}
+
+export async function findRingingCallForMe(): Promise<Call | null> {
+  const id = await me();
+  const since = new Date(Date.now() - 45000).toISOString();
+  const rows = check(
+    await supabase
+      .from('calls')
+      .select('*')
+      .eq('callee_id', id)
+      .eq('status', 'ringing')
+      .gt('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(1),
+  ) as Call[];
+  return rows[0] ?? null;
 }
 
 // ---------------------------------------------------------------- conversations

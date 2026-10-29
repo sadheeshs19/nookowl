@@ -5,7 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Empty, T } from '../../components/ui';
 import { getPeopleOpenToCalls, sendCallRequest, startCall } from '../../lib/api';
+import { CreditsPill } from '../../components/CreditsSheet';
 import { useAuth } from '../../lib/auth';
+import { useCredits } from '../../lib/credits';
 import type { Profile } from '../../lib/types';
 import { fonts } from '../../theme/colors';
 import { useTheme } from '../../theme/ThemeProvider';
@@ -15,6 +17,7 @@ const SWIPE_AT = 110;
 export default function People() {
   const { colors } = useTheme();
   const { profile: me } = useAuth();
+  const { credits, openSheet, ensureCanCall, refresh: refreshCredits } = useCredits();
   const [people, setPeople] = useState<Profile[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -57,12 +60,16 @@ export default function People() {
         setIndex((i) => i + 1);
       });
       if (dir === 1 && person) {
+        if (credits && credits.total_seconds < 60) {
+          openSheet('You need at least a minute of call time to send a call request. Watch a short ad to get more.');
+          return;
+        }
         sendCallRequest(person.id)
           .then(() => showToast(`Call request sent to ${person.username}. You’ll be connected when they accept.`))
           .catch((e) => showToast(e instanceof Error ? e.message : 'Could not send the request.'));
       }
     },
-    [index, people, x],
+    [credits, index, openSheet, people, x],
   );
 
   // The gesture handler is created once; it calls the latest `advance` through a ref.
@@ -87,8 +94,10 @@ export default function People() {
 
   const callNow = async () => {
     if (!current) return;
+    if (!(await ensureCanCall())) return;
     try {
       const call = await startCall(current.id);
+      refreshCredits();
       router.push({ pathname: '/call/[id]', params: { id: call.id, name: current.username } });
     } catch (e) {
       Alert.alert('Could not start the call', e instanceof Error ? e.message : '');
@@ -101,9 +110,12 @@ export default function People() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 14, gap: 4 }}>
-        <T variant="title">Ready to talk</T>
-        <T muted>Swipe right to send a call request</T>
+      <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 14, flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
+        <View style={{ flex: 1, gap: 4 }}>
+          <T variant="title">Ready to talk</T>
+          <T muted>Swipe right to send a call request</T>
+        </View>
+        <CreditsPill seconds={credits?.total_seconds} onPress={() => openSheet()} />
       </View>
 
       {!me?.open_to_calls ? (

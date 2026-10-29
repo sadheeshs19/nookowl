@@ -73,6 +73,15 @@ export type ConversationListItem = Conversation & {
   last: Message | null;
 };
 
+export type Credits = {
+  free_seconds: number;
+  bonus_seconds: number;
+  total_seconds: number;
+  ads_today: number;
+  ads_left: number;
+  ad_seconds: number;
+};
+
 export type Message = {
   id: string;
   conversation_id: string;

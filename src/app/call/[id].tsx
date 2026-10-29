@@ -8,6 +8,7 @@ import { activateConversationWith, getCall, getProfile, rateCall, report, setCal
 import { useAuth } from '../../lib/auth';
 import { clock } from '../../lib/format';
 import type { Call, Profile } from '../../lib/types';
+import { useCredits } from '../../lib/credits';
 import { useAgoraCall } from '../../lib/useAgoraCall';
 import { useRealtime } from '../../lib/useRealtime';
 import { fonts } from '../../theme/colors';
@@ -62,6 +63,24 @@ export default function CallScreen() {
 
   const accepted = call?.status === 'accepted';
   const agora = useAgoraCall(id, accepted && phase === 'live', finish);
+  const { refresh: refreshCredits, openSheet, credits } = useCredits();
+  const isCaller = !!call && call.caller_id === me;
+
+  // Minutes left on this call (the caller's minutes when it started).
+  const remaining =
+    agora.secondsLeft == null ? null : agora.secondsLeft - (agora.connectedAt ? (now - agora.connectedAt) / 1000 : 0);
+
+  // Out of minutes: end the call (the server-issued token expires at the same time).
+  useEffect(() => {
+    // Ending the call is a one-off reaction to the clock reaching zero.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (phase === 'live' && agora.state === 'connected' && remaining != null && remaining <= 0) finish();
+  }, [agora.state, finish, phase, remaining]);
+
+  // Show the updated balance after the call.
+  useEffect(() => {
+    if (phase === 'after') refreshCredits();
+  }, [phase, refreshCredits]);
 
   // React to the other person declining, missing or ending the call.
   useEffect(() => {
@@ -103,6 +122,13 @@ export default function CallScreen() {
           <Avatar name={displayName} size={96} />
           <T variant="title" style={{ textAlign: 'center' }}>Call ended</T>
           {agora.connectedAt ? <T muted>You talked for {clock((now - agora.connectedAt) / 1000)}</T> : null}
+          {isCaller && credits ? (
+            <Pressable accessibilityRole="button" onPress={() => openSheet()}>
+              <T variant="small" style={{ color: colors.accentText }}>
+                {Math.floor(credits.total_seconds / 60)} call minutes left · Get more
+              </T>
+            </Pressable>
+          ) : null}
         </View>
 
         <View style={{ gap: 10, alignItems: 'center' }}>
@@ -192,6 +218,15 @@ export default function CallScreen() {
         <T variant="title">{displayName}</T>
         {other?.languages.length ? <T muted>Speaks {other.languages.join(', ')}</T> : null}
         <Text style={{ fontFamily: fonts.bodySemi, fontSize: 20, color: colors.text, fontVariant: ['tabular-nums'] }}>{status}</Text>
+        {remaining != null && agora.state === 'connected' && remaining <= 120 ? (
+          <View accessibilityLiveRegion="polite" style={{ alignSelf: 'stretch', padding: 12, borderRadius: 14, backgroundColor: colors.warnBg }}>
+            <T variant="small" style={{ color: colors.warnFg, textAlign: 'center' }}>
+              {isCaller
+                ? `${clock(remaining)} of call time left. Watch an ad after the call to get more minutes.`
+                : `This call can last ${clock(remaining)} more.`}
+            </T>
+          </View>
+        ) : null}
 
         <Pressable
           accessibilityRole="button"

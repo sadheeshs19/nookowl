@@ -49,8 +49,14 @@ Deno.serve(async (req) => {
     return json({ error: 'Call is over' }, 410);
   }
 
-  // uid 0 lets Agora assign the numeric id; the token is valid for one hour.
-  const expireSeconds = 3600;
+  // The call may last as long as the caller has minutes (max one hour per token).
+  // When the token expires, Agora removes both people from the call.
+  const { data: allowed } = await supabase.rpc('call_seconds_allowed', { p_call_id: callId });
+  const secondsLeft = typeof allowed === 'number' ? allowed : 0;
+  if (secondsLeft < 15) return json({ error: 'The caller is out of call minutes' }, 402);
+  const expireSeconds = Math.min(3600, secondsLeft + 15);
+
+  // uid 0 lets Agora assign the numeric id.
   const token = RtcTokenBuilder.buildTokenWithUid(
     appId,
     certificate,
@@ -61,5 +67,5 @@ Deno.serve(async (req) => {
     expireSeconds,
   );
 
-  return json({ token, channel: call.channel, appId });
+  return json({ token, channel: call.channel, appId, secondsLeft });
 });

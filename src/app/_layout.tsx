@@ -14,7 +14,9 @@ import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CallWatcher } from '../components/CallWatcher';
 import { OwlSplash } from '../components/OwlSplash';
+import mobileAds from 'react-native-google-mobile-ads';
 import { AuthProvider } from '../lib/auth';
+import { CreditsProvider } from '../lib/credits';
 import { ThemeProvider, useTheme } from '../theme/ThemeProvider';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -58,13 +60,22 @@ export default function RootLayout() {
     if (loaded) SplashScreen.hideAsync().catch(() => {});
   }, [loaded]);
 
+  useEffect(() => {
+    // Start loading rewarded ads early so "watch an ad" is instant.
+    mobileAds()
+      .initialize()
+      .catch(() => {});
+  }, []);
+
   if (!loaded) return null;
 
   return (
     <SafeAreaProvider>
       <ThemeProvider>
         <AuthProvider>
-          <AppShell />
+          <CreditsProvider>
+            <AppShell />
+          </CreditsProvider>
         </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>

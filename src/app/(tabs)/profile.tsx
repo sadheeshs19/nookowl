@@ -6,6 +6,8 @@ import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Empty, Segmented, T } from '../../components/ui';
 import { deleteTopic, getFeed, setOpenToCalls } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
+import { useCredits } from '../../lib/credits';
+import { unregisterPush } from '../../lib/push';
 import { timeAgo } from '../../lib/format';
 import type { FeedTopic } from '../../lib/types';
 import { fonts } from '../../theme/colors';
@@ -14,6 +16,7 @@ import { useTheme, type ThemePreference } from '../../theme/ThemeProvider';
 export default function ProfileScreen() {
   const { colors, preference, setPreference } = useTheme();
   const { profile, refreshProfile, signOut } = useAuth();
+  const { credits, openSheet } = useCredits();
   const [topics, setTopics] = useState<FeedTopic[]>([]);
   const [open, setOpen] = useState(profile?.open_to_calls ?? false);
 
@@ -88,6 +91,19 @@ export default function ProfileScreen() {
           <Switch accessibilityLabel="Open to calls" value={open} onValueChange={toggleOpen} trackColor={{ true: colors.online }} />
         </View>
 
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => openSheet()}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border }}
+        >
+          <Icon name="phone" size={22} color={colors.accentText} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <T variant="label">{credits ? `${Math.floor(credits.total_seconds / 60)} call minutes` : 'Call minutes'}</T>
+            <T variant="small" muted>10 free every day · watch an ad for more</T>
+          </View>
+          <T variant="label" style={{ color: colors.accentText }}>Get more</T>
+        </Pressable>
+
         <View style={{ flexDirection: 'row', gap: 8 }}>
           {[
             ['Topics', topics.length],
@@ -146,7 +162,15 @@ export default function ProfileScreen() {
           ]}
         />
 
-        <Button kind="secondary" title="Sign out" onPress={signOut} style={{ marginTop: 8 }} />
+        <Button
+          kind="secondary"
+          title="Sign out"
+          onPress={async () => {
+            await unregisterPush();
+            await signOut();
+          }}
+          style={{ marginTop: 8 }}
+        />
       </ScrollView>
     </SafeAreaView>
   );

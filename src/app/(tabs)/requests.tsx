@@ -42,7 +42,11 @@ export default function Requests() {
       const call = await acceptCallRequest(r);
       router.push({ pathname: '/call/[id]', params: { id: call.id, name: r.from_profile?.username ?? '' } });
     } catch (e) {
-      Alert.alert('Could not start the call', e instanceof Error ? e.message : '');
+      const msg = e instanceof Error ? e.message : '';
+      Alert.alert(
+        'Could not start the call',
+        /row-level security/i.test(msg) ? 'They’ve run out of call minutes right now. Try again later.' : msg,
+      );
     } finally {
       setBusyId(null);
       load();

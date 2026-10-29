@@ -18,6 +18,8 @@ export type AgoraState = 'idle' | 'joining' | 'waiting' | 'connected' | 'left' |
 export function useAgoraCall(callId: string | undefined, active: boolean, onRemoteLeft: () => void) {
   const engine = useRef<IRtcEngine | null>(null);
   const [state, setState] = useState<AgoraState>('idle');
+  /** The caller's call minutes when the call started (seconds). */
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [connectedAt, setConnectedAt] = useState<number | null>(null);
   const [muted, setMuted] = useState(false);
   const [speaker, setSpeaker] = useState(false);
@@ -38,6 +40,8 @@ export function useAgoraCall(callId: string | undefined, active: boolean, onRemo
         setConnectedAt((t) => t ?? Date.now());
       },
       onUserOffline: () => remoteLeft.current(),
+      // The token only lasts as long as the caller's minutes: when it runs out, the call ends.
+      onRequestToken: () => remoteLeft.current(),
       onError: (code, msg) => {
         setError(`${code}: ${msg}`);
       },
@@ -48,8 +52,9 @@ export function useAgoraCall(callId: string | undefined, active: boolean, onRemo
       try {
         const perm = await requestRecordingPermissionsAsync();
         if (!perm.granted) throw new Error('Microphone permission is needed for calls.');
-        const { token, channel, appId } = await getAgoraToken(callId);
+        const { token, channel, appId, secondsLeft: allowed } = await getAgoraToken(callId);
         if (cancelled) return;
+        setSecondsLeft(allowed);
         const rtc = createAgoraRtcEngine();
         engine.current = rtc;
         rtc.initialize({
@@ -101,5 +106,5 @@ export function useAgoraCall(callId: string | undefined, active: boolean, onRemo
     });
   }, []);
 
-  return { state, connectedAt, muted, speaker, error, toggleMute, toggleSpeaker };
+  return { state, connectedAt, secondsLeft, muted, speaker, error, toggleMute, toggleSpeaker };
 }
