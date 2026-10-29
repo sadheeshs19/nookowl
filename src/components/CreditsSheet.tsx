@@ -86,7 +86,7 @@ export function CreditsSheet({
         <View style={{ gap: 6, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
           <T variant="label">How minutes work</T>
           <T variant="small" muted>Only the person who calls uses minutes. Answering is always free.</T>
-          <T variant="small" muted>You get 10 free minutes every day. Minutes from ads never expire.</T>
+          <T variant="small" muted>You get 30 free minutes every day. Minutes from ads never expire.</T>
         </View>
 
         <Button
