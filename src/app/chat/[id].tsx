@@ -10,6 +10,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { HootButton } from '../../components/HootButton';
 import { Icon } from '../../components/icons';
 import { VoiceNote } from '../../components/VoiceNote';
 import { Avatar, Button, T } from '../../components/ui';
@@ -43,6 +44,8 @@ export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [hootCount, setHootCount] = useState(0);
+  const onHootState = useCallback((s: { total: number }) => setHootCount(s.total), []);
 
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const rec = useAudioRecorderState(recorder, 200);
@@ -174,8 +177,11 @@ export default function Chat() {
         <Avatar name={other?.username} path={other?.avatar_path} />
         <View style={{ flex: 1 }}>
           <T variant="label">{other?.username ?? ' '}</T>
-          {other?.city ? <T variant="small" muted>{other.city}</T> : null}
+          {other?.city || hootCount ? (
+            <T variant="small" muted>{[other?.city, hootCount ? `${hootCount} ${hootCount === 1 ? 'hoot' : 'hoots'}` : null].filter(Boolean).join(' · ')}</T>
+          ) : null}
         </View>
+        {canCall && other ? <HootButton otherId={other.id} otherName={other.username} onState={onHootState} /> : null}
         {canCall ? (
           <Pressable
             accessibilityRole="button"

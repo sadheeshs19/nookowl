@@ -8,7 +8,8 @@ import { deletePushToken, savePushToken } from './api';
 export type PushData =
   | { type: 'call'; callId: string }
   | { type: 'request'; requestId: string }
-  | { type: 'message'; conversationId: string };
+  | { type: 'message'; conversationId: string }
+  | { type: 'hoot'; conversationId: string };
 
 // While the app is open, calls are shown by the in-app incoming-call screen,
 // so only messages and requests show a banner.

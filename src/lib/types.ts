@@ -103,3 +103,22 @@ export type Message = {
   audio_ms: number | null;
   created_at: string;
 };
+
+/** Where hoots stand between me and one other person. */
+export type HootState = {
+  can_hoot: boolean;
+  total: number;
+  last_from: string | null;
+  last_at: string | null;
+  connected: boolean;
+};
+
+/** Someone who hooted me and is waiting for a hoot back. */
+export type HootForMe = {
+  from_id: string;
+  username: string;
+  avatar_path: string | null;
+  created_at: string;
+  total: number;
+  conversation_id: string;
+};

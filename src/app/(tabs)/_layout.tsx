@@ -2,7 +2,7 @@ import { Redirect } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
 import { useCallback, useEffect, useState } from 'react';
 import { Icon, type IconName } from '../../components/icons';
-import { getCallRequests, listConversations } from '../../lib/api';
+import { getCallRequests, listConversations, listHootsForMe } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useRealtime } from '../../lib/useRealtime';
 import { fonts } from '../../theme/colors';
@@ -15,10 +15,11 @@ function useBadges(userId: string | undefined) {
   const refresh = useCallback(async () => {
     if (!userId) return;
     try {
-      const [r, convs] = await Promise.all([getCallRequests(), listConversations()]);
+      const [r, convs, hoots] = await Promise.all([getCallRequests(), listConversations(), listHootsForMe().catch(() => [])]);
       setRequests(r.received.length);
       // Message requests waiting for this user's answer.
-      setInbox(convs.filter((c) => c.status === 'request' && c.created_by !== userId).length);
+      // plus people who hooted and are waiting for a hoot back.
+      setInbox(convs.filter((c) => c.status === 'request' && c.created_by !== userId).length + hoots.length);
     } catch {
       // badges are best-effort
     }
@@ -32,7 +33,7 @@ function useBadges(userId: string | undefined) {
     return () => clearInterval(t);
   }, [refresh]);
 
-  useRealtime('badges', [{ table: 'call_requests' }, { table: 'conversations' }], refresh, !!userId);
+  useRealtime('badges', [{ table: 'call_requests' }, { table: 'conversations' }, { table: 'hoots', event: 'INSERT' }], refresh, !!userId);
   return { requests, inbox };
 }
 

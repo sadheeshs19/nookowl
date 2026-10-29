@@ -63,7 +63,7 @@ export function CallWatcher() {
     if (handledResponse.current === id) return;
     handledResponse.current = id;
     const data = lastResponse.notification.request.content.data as Partial<PushData> | undefined;
-    if (data?.type === 'message' && data.conversationId) {
+    if ((data?.type === 'message' || data?.type === 'hoot') && data.conversationId) {
       router.push({ pathname: '/chat/[id]', params: { id: data.conversationId } });
     } else if (data?.type === 'request') {
       router.navigate('/(tabs)/requests');

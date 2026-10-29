@@ -27,7 +27,8 @@ export type IconName =
   | 'filter'
   | 'stop'
   | 'check'
-  | 'camera';
+  | 'camera'
+  | 'owl';
 
 export function Icon({
   name,
@@ -88,6 +89,14 @@ export function Icon({
         <>
           <Circle {...common} cx={11} cy={11} r={7} />
           <Path {...common} d="M20 20l-4-4" />
+        </>
+      )}
+      {name === 'owl' && (
+        <>
+          <Path {...common} d="M6 4l2.5 3h7L18 4v9a6 6 0 0 1-12 0z" />
+          <Circle {...common} cx={9.5} cy={11} r={1.8} />
+          <Circle {...common} cx={14.5} cy={11} r={1.8} />
+          <Path {...common} d="M11.2 14.2L12 15.4l.8-1.2" />
         </>
       )}
       {name === 'camera' && (

@@ -3,11 +3,12 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
-import { Avatar, Empty, Segmented, T } from '../../components/ui';
-import { listConversations } from '../../lib/api';
+import { Avatar, Button, Empty, Segmented, T } from '../../components/ui';
+import { listConversations, listHootsForMe, sendHoot, startCall } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { timeAgo } from '../../lib/format';
-import type { ConversationListItem } from '../../lib/types';
+import { useCredits } from '../../lib/credits';
+import type { ConversationListItem, HootForMe } from '../../lib/types';
 import { useRealtime } from '../../lib/useRealtime';
 import { useTheme } from '../../theme/ThemeProvider';
 
@@ -18,10 +19,15 @@ export default function Inbox() {
   const [tab, setTab] = useState<'chats' | 'requests'>('chats');
   const [items, setItems] = useState<ConversationListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoots, setHoots] = useState<HootForMe[]>([]);
+  const [busyHoot, setBusyHoot] = useState<string | null>(null);
+  const { ensureCanCall } = useCredits();
 
   const load = useCallback(async () => {
     try {
-      setItems(await listConversations());
+      const [convs, h] = await Promise.all([listConversations(), listHootsForMe().catch(() => [] as HootForMe[])]);
+      setItems(convs);
+      setHoots(h);
     } catch (e) {
       Alert.alert('Could not load your inbox', e instanceof Error ? e.message : '');
     } finally {
@@ -34,7 +40,29 @@ export default function Inbox() {
       load();
     }, [load]),
   );
-  useRealtime('inbox', [{ table: 'messages', event: 'INSERT' }, { table: 'conversations' }], load, !!me);
+  useRealtime('inbox', [{ table: 'messages', event: 'INSERT' }, { table: 'conversations' }, { table: 'hoots', event: 'INSERT' }], load, !!me);
+
+  const hootBack = async (h: HootForMe) => {
+    setBusyHoot(h.from_id);
+    try {
+      await sendHoot(h.from_id);
+      setHoots((list) => list.filter((x) => x.from_id !== h.from_id));
+    } catch (e) {
+      Alert.alert('Couldn’t hoot', e instanceof Error ? e.message : '');
+    } finally {
+      setBusyHoot(null);
+    }
+  };
+
+  const callBack = async (h: HootForMe) => {
+    if (!(await ensureCanCall())) return;
+    try {
+      const c = await startCall(h.from_id);
+      router.push({ pathname: '/call/[id]', params: { id: c.id, name: h.username } });
+    } catch (e) {
+      Alert.alert('Could not call', e instanceof Error ? e.message : '');
+    }
+  };
 
   // A "request" is a conversation someone else started that I haven't accepted yet.
   const requests = items.filter((c) => c.status === 'request' && c.created_by !== me);
@@ -53,6 +81,46 @@ export default function Inbox() {
             { key: 'requests', label: `Requests · ${requests.length}` },
           ]}
         />
+        {tab === 'chats' && hoots.length ? (
+          <View style={{ gap: 8 }}>
+            <T variant="caps" muted>Hooted at you</T>
+            {hoots.map((h) => (
+              <View
+                key={h.from_id}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 16, backgroundColor: colors.noticeBg }}
+              >
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Open chat with ${h.username}`}
+                  onPress={() => router.push({ pathname: '/chat/[id]', params: { id: h.conversation_id } })}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}
+                >
+                  <View>
+                    <Avatar name={h.username} path={h.avatar_path} size={44} />
+                    <View style={{ position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.noticeBg }}>
+                      <Icon name="owl" size={13} color={colors.onAccent} />
+                    </View>
+                  </View>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <T variant="label" style={{ color: colors.noticeFg }}>{h.username} hooted at you</T>
+                    <T variant="small" style={{ color: colors.noticeFg }}>
+                      {timeAgo(h.created_at)} · {h.total} {h.total === 1 ? 'hoot' : 'hoots'} together
+                    </T>
+                  </View>
+                </Pressable>
+                <Button kind="secondary" title="Hoot back" loading={busyHoot === h.from_id} onPress={() => hootBack(h)} />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Call ${h.username}`}
+                  onPress={() => callBack(h)}
+                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Icon name="phone" size={18} color={colors.onAccent} />
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        ) : null}
         {tab === 'requests' && requests.length ? (
           <View style={{ flexDirection: 'row', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.noticeBg }}>
             <T variant="small" style={{ color: colors.noticeFg, flex: 1 }}>

@@ -6,6 +6,8 @@ import type {
   Credits,
   ConversationListItem,
   FeedTopic,
+  HootForMe,
+  HootState,
   Message,
   Profile,
   TopicComment,
@@ -351,4 +353,20 @@ export async function report(target: { userId?: string; topicId?: string; callId
 export async function block(userId: string) {
   const blocker_id = await me();
   check(await supabase.from('blocks').upsert({ blocker_id, blocked_id: userId }));
+}
+
+// ---------------------------------------------------------------- hoots
+export async function getHootState(otherId: string): Promise<HootState> {
+  const rows = check(await supabase.rpc('get_hoot_state', { other: otherId })) as HootState[];
+  return rows[0];
+}
+
+/** Hoots someone. Throws a friendly message if it isn't allowed right now. */
+export async function sendHoot(otherId: string): Promise<HootState> {
+  const rows = check(await supabase.rpc('send_hoot', { other: otherId })) as HootState[];
+  return rows[0];
+}
+
+export async function listHootsForMe(): Promise<HootForMe[]> {
+  return check(await supabase.rpc('list_hoots_for_me')) as HootForMe[];
 }
