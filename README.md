@@ -10,7 +10,7 @@ Built with Expo (SDK 58) + Expo Router, Supabase (auth, database, realtime, stor
 - **Sign up** with an email magic link that opens the app, then a nickname, birth year (18+ only), languages and interests.
 - **Topics**: scrolling feed with search, trending tags, likes and comments. No calls from topics, only messages.
 - **People**: swipe right to send a call request, left to pass, or tap Call now. Only people who switched on "Open to calls" appear.
-- **Requests**: received and sent call requests. They expire after 15 minutes. Accepting starts the call.
+- **Requests**: call requests people sent you (requests you've sent stay private). They expire after 15 minutes. Accepting rings the sender, and their minutes only start when they pick up.
 - **Inbox**: chats and message requests (a stranger's first message waits until you accept). Text and hold-to-record voice notes.
 - **Voice calls** over Agora with mute, speaker, talk prompts, report, and a rating plus "stay in touch?" after the call.
 - **Profile**: open-to-calls switch, your topics with their likes and comments, light/dark/system appearance.
@@ -39,7 +39,7 @@ cp .env.example .env
 
 Sign-in works by magic link: the app emails a link, and tapping it **on the same phone** opens Nooks Owl signed in. Supabase's built-in email sender only sends a few emails per hour, so connect your own SMTP (Authentication → Emails → SMTP Settings) before launch.
 
-Then run the second migration the same way: `supabase/migrations/20261029000000_credits_and_push.sql` (credits, call-time rules and push notifications).
+Then run the other migrations the same way, in order: `20261029000000_credits_and_push.sql` (credits, call-time rules and push notifications) and `20261029120000_request_calls_ring.sql` (an accepted call request rings the sender; minutes start only when they pick up).
 
 ### 3. Agora
 

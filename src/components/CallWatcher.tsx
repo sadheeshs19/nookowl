@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { findRingingCallForMe, getCall, getProfile, setCallStatus } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { registerForPush, type PushData } from '../lib/push';
-import type { Call } from '../lib/types';
+import { answererOf, dialerOf, type Call } from '../lib/types';
 import { useRealtime } from '../lib/useRealtime';
 import { useTheme } from '../theme/ThemeProvider';
 import { Icon } from './icons';
@@ -16,7 +16,7 @@ import { Avatar, Button, T } from './ui';
 /**
  * Lives at the root of the app while signed in:
  * - shows a full-screen incoming call when someone calls you
- * - opens the call when someone accepts your call request
+ * - rings you when someone accepts your call request
  * - registers for push notifications and opens the right screen when one is tapped
  * - when the app is opened from a call notification, picks up the ringing call
  */
@@ -29,7 +29,7 @@ export function CallWatcher() {
   const lastResponse = Notifications.useLastNotificationResponse();
 
   const showIncoming = useCallback(async (call: Call) => {
-    const p = await getProfile(call.caller_id).catch(() => null);
+    const p = await getProfile(dialerOf(call)).catch(() => null);
     setIncoming({ call, name: p?.username ?? 'Someone' });
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   }, []);
@@ -71,10 +71,7 @@ export function CallWatcher() {
       getCall(data.callId)
         .then((c) => {
           if (!c) return;
-          if (c.status === 'ringing' && c.callee_id === me) showIncoming(c);
-          else if (c.status === 'accepted' && c.caller_id === me) {
-            router.push({ pathname: '/call/[id]', params: { id: c.id } });
-          }
+          if (c.status === 'ringing' && answererOf(c) === me) showIncoming(c);
         })
         .catch(() => {});
     }
@@ -87,23 +84,18 @@ export function CallWatcher() {
           { table: 'calls', event: 'INSERT', filter: `callee_id=eq.${me}` },
           { table: 'calls', event: 'INSERT', filter: `caller_id=eq.${me}` },
           { table: 'calls', event: 'UPDATE', filter: `callee_id=eq.${me}` },
+          { table: 'calls', event: 'UPDATE', filter: `caller_id=eq.${me}` },
         ]
       : [],
     async (p) => {
       const call = p.new as Call;
       if (!me) return;
-      // Someone is calling me.
-      if (p.eventType === 'INSERT' && call.callee_id === me && call.status === 'ringing') {
+      // Someone is calling me, or accepted my call request and is ringing me.
+      if (p.eventType === 'INSERT' && answererOf(call) === me && call.status === 'ringing') {
         showIncoming(call);
         return;
       }
-      // The person I sent a call request to accepted it: join the call.
-      if (p.eventType === 'INSERT' && call.caller_id === me && call.status === 'accepted') {
-        const other = await getProfile(call.callee_id).catch(() => null);
-        router.push({ pathname: '/call/[id]', params: { id: call.id, name: other?.username ?? '' } });
-        return;
-      }
-      // The caller gave up before I answered.
+      // They gave up before I answered.
       if (p.eventType === 'UPDATE' && call.status !== 'ringing') {
         setIncoming((cur) => (cur && cur.call.id === call.id ? null : cur));
       }
@@ -137,10 +129,14 @@ export function CallWatcher() {
     <Modal visible animationType="fade" onRequestClose={decline}>
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.callBg, padding: 24, justifyContent: 'space-between' }}>
         <View style={{ alignItems: 'center', gap: 14, marginTop: 80 }}>
-          <T variant="caps" muted>Incoming call</T>
+          <T variant="caps" muted>{incoming.call.rings_caller ? 'Accepted your call request' : 'Incoming call'}</T>
           <Avatar name={incoming.name} size={120} />
           <T variant="title">{incoming.name}</T>
-          <T muted>Answering is always free.</T>
+          <T muted style={{ textAlign: 'center' }}>
+            {incoming.call.rings_caller
+              ? 'Your call minutes start once you answer.'
+              : 'Answering is always free.'}
+          </T>
         </View>
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <Button kind="danger" title="Decline" style={{ flex: 1, minHeight: 60 }} onPress={decline} icon={<Icon name="hangup" color="#FFFFFF" />} />

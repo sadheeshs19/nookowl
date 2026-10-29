@@ -143,7 +143,8 @@ export async function acceptCallRequest(req: CallRequest): Promise<Call> {
   return check(
     await supabase
       .from('calls')
-      .insert({ caller_id: req.from_id, callee_id: id, status: 'accepted', accepted_at: new Date().toISOString() })
+      // Rings the person who sent the request; their minutes start when they pick up.
+      .insert({ caller_id: req.from_id, callee_id: id, rings_caller: true })
       .select('*')
       .single(),
   ) as Call;
@@ -216,7 +217,7 @@ export async function findRingingCallForMe(): Promise<Call | null> {
     await supabase
       .from('calls')
       .select('*')
-      .eq('callee_id', id)
+      .or(`and(callee_id.eq.${id},rings_caller.eq.false),and(caller_id.eq.${id},rings_caller.eq.true)`)
       .eq('status', 'ringing')
       .gt('created_at', since)
       .order('created_at', { ascending: false })

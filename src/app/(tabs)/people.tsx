@@ -65,7 +65,7 @@ export default function People() {
           return;
         }
         sendCallRequest(person.id)
-          .then(() => showToast(`Call request sent to ${person.username}. You’ll be connected when they accept.`))
+          .then(() => showToast(`Call request sent to ${person.username}. We’ll ring you if they accept.`))
           .catch((e) => showToast(e instanceof Error ? e.message : 'Could not send the request.'));
       }
     },

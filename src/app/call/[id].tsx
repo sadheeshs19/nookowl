@@ -7,7 +7,7 @@ import { Avatar, Button, T } from '../../components/ui';
 import { activateConversationWith, getCall, getProfile, rateCall, report, setCallStatus } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { clock } from '../../lib/format';
-import type { Call, Profile } from '../../lib/types';
+import { dialerOf, type Call, type Profile } from '../../lib/types';
 import { useCredits } from '../../lib/credits';
 import { useAgoraCall } from '../../lib/useAgoraCall';
 import { useRealtime } from '../../lib/useRealtime';
@@ -65,6 +65,8 @@ export default function CallScreen() {
   const agora = useAgoraCall(id, accepted && phase === 'live', finish);
   const { refresh: refreshCredits, openSheet, credits } = useCredits();
   const isCaller = !!call && call.caller_id === me;
+  // The one waiting for the other to pick up.
+  const isDialer = !!call && dialerOf(call) === me;
 
   // Minutes left on this call (the caller's minutes when it started).
   const remaining =
@@ -93,7 +95,7 @@ export default function CallScreen() {
 
   // Stop ringing after a while if nobody answers.
   useEffect(() => {
-    if (!call || call.status !== 'ringing' || call.caller_id !== me) return;
+    if (!call || call.status !== 'ringing' || dialerOf(call) !== me) return;
     const left = RING_TIMEOUT_MS - (Date.now() - new Date(call.created_at).getTime());
     const t = setTimeout(() => setCallStatus(call.id, 'missed').catch(() => {}), Math.max(0, left));
     return () => clearTimeout(t);
@@ -107,7 +109,7 @@ export default function CallScreen() {
   const hangUp = async () => {
     if (!call) return router.back();
     if (call.status === 'ringing') {
-      await setCallStatus(call.id, call.caller_id === me ? 'missed' : 'declined').catch(() => {});
+      await setCallStatus(call.id, dialerOf(call) === me ? 'missed' : 'declined').catch(() => {});
       return router.back();
     }
     finish();
@@ -184,7 +186,7 @@ export default function CallScreen() {
   const status =
     agora.error ??
     (call?.status === 'ringing'
-      ? call.caller_id === me
+      ? isDialer
         ? 'Ringing…'
         : 'Connecting…'
       : agora.state === 'connected' && agora.connectedAt

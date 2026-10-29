@@ -56,7 +56,16 @@ export type Call = {
   created_at: string;
   accepted_at: string | null;
   ended_at: string | null;
+  /** true when an accepted call request rings the person who sent it. */
+  rings_caller: boolean;
 };
+
+/** The person who has to pick up this call. */
+export const answererOf = (c: Pick<Call, 'rings_caller' | 'caller_id' | 'callee_id'>) =>
+  c.rings_caller ? c.caller_id : c.callee_id;
+/** The person waiting for the other to pick up. */
+export const dialerOf = (c: Pick<Call, 'rings_caller' | 'caller_id' | 'callee_id'>) =>
+  c.rings_caller ? c.callee_id : c.caller_id;
 
 export type Conversation = {
   id: string;

@@ -3,8 +3,8 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
-import { Avatar, Button, Card, Empty, Segmented, T } from '../../components/ui';
-import { acceptCallRequest, cancelCallRequest, declineCallRequest, getCallRequests } from '../../lib/api';
+import { Avatar, Button, Card, Empty, T } from '../../components/ui';
+import { acceptCallRequest, declineCallRequest, getCallRequests } from '../../lib/api';
 import { minutesLeft, timeAgo } from '../../lib/format';
 import type { CallRequest } from '../../lib/types';
 import { useRealtime } from '../../lib/useRealtime';
@@ -12,14 +12,14 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Requests() {
   const { colors } = useTheme();
-  const [tab, setTab] = useState<'received' | 'sent'>('received');
-  const [data, setData] = useState<{ received: CallRequest[]; sent: CallRequest[] }>({ received: [], sent: [] });
+  // Only requests sent to me are shown; requests I've sent stay private.
+  const [list, setList] = useState<CallRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
-      setData(await getCallRequests());
+      setList((await getCallRequests()).received);
     } catch (e) {
       Alert.alert('Could not load requests', e instanceof Error ? e.message : '');
     } finally {
@@ -39,6 +39,7 @@ export default function Requests() {
   const accept = async (r: CallRequest) => {
     setBusyId(r.id);
     try {
+      // Rings the person who asked; the call starts when they pick up.
       const call = await acceptCallRequest(r);
       router.push({ pathname: '/call/[id]', params: { id: call.id, name: r.from_profile?.username ?? '' } });
     } catch (e) {
@@ -63,28 +64,20 @@ export default function Requests() {
     }
   };
 
-  const list = tab === 'received' ? data.received : data.sent;
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 8, gap: 14 }}>
         <T variant="title">Call requests</T>
-        <Segmented
-          value={tab}
-          onChange={setTab}
-          options={[
-            { key: 'received', label: `Received · ${data.received.length}` },
-            { key: 'sent', label: `Sent · ${data.sent.length}` },
-          ]}
-        />
-        <T variant="small" muted>Requests expire after 15 minutes. Answering a call is always free.</T>
+        <T variant="small" muted>
+          People who want to talk with you. Requests expire after 15 minutes. When you accept, we ring them, and the call is free for you.
+        </T>
       </View>
       <FlatList
         data={list}
         keyExtractor={(r) => r.id}
         contentContainerStyle={{ padding: 20, gap: 12 }}
-        renderItem={({ item }) =>
-          tab === 'received' ? (
+        renderItem={({ item }) => (
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 <Avatar name={item.from_profile?.username} size={48} />
@@ -111,24 +104,14 @@ export default function Requests() {
                 />
               </View>
             </Card>
-          ) : (
-            <Card style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Avatar name={item.to_profile?.username} size={48} />
-              <View style={{ flex: 1, gap: 3 }}>
-                <T variant="label">{item.to_profile?.username ?? 'Someone'}</T>
-                <T variant="small" muted>Waiting · expires in {minutesLeft(item.expires_at)}</T>
-              </View>
-              <Button kind="secondary" title="Cancel" onPress={() => act(item.id, cancelCallRequest)} loading={busyId === item.id} />
-            </Card>
-          )
-        }
+        )}
         ListEmptyComponent={
           loading ? (
             <ActivityIndicator color={colors.accent} />
           ) : (
             <Empty
-              title={tab === 'received' ? 'No requests right now' : 'No pending requests'}
-              body={tab === 'received' ? 'Turn on “Open to calls” in your profile so people can find you.' : undefined}
+              title="No requests right now"
+              body="Turn on “Open to calls” in your profile so people can find you."
               action={<Button kind="secondary" title="Find people to talk to" onPress={() => router.navigate('/(tabs)/people')} />}
             />
           )
