@@ -24,13 +24,15 @@ Deno.serve(async (req) => {
   const certificate = Deno.env.get('AGORA_APP_CERTIFICATE');
   if (!appId || !certificate) return json({ error: 'Agora is not configured' }, 500);
 
+  const authHeader = req.headers.get('Authorization') ?? '';
+  const jwt = authHeader.replace(/^Bearer\s+/i, '');
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_ANON_KEY')!,
-    { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } },
+    Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } },
   );
 
-  const { data: auth } = await supabase.auth.getUser();
+  const { data: auth } = await supabase.auth.getUser(jwt);
   if (!auth.user) return json({ error: 'Not signed in' }, 401);
 
   const { callId } = await req.json().catch(() => ({ callId: null }));
