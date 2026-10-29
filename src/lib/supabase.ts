@@ -6,6 +6,9 @@ import { AppState, Platform } from 'react-native';
 const url = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
+/** The server the app talks to, shown in errors to help spot a wrong URL. */
+export const supabaseHost = () => (url ? url.replace(/^https?:\/\//, '') : 'no URL set');
+
 export const isConfigured = url.startsWith('https://') && anonKey.length > 20;
 
 export const supabase = createClient(url || 'https://placeholder.supabase.co', anonKey || 'placeholder', {

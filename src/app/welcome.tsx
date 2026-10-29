@@ -6,7 +6,7 @@ import { OwlBody } from '../components/OwlSplash';
 import { Button, Field, T } from '../components/ui';
 import { useAuth } from '../lib/auth';
 import { authRedirectUrl } from '../lib/magicLink';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseHost } from '../lib/supabase';
 import { fonts } from '../theme/colors';
 import { useTheme } from '../theme/ThemeProvider';
 
@@ -48,7 +48,9 @@ export default function Welcome() {
       setError(
         /rate|limit|seconds/i.test(e.message)
           ? 'Too many emails sent. Wait a minute, then try again.'
-          : e.message,
+          : /json|parse|network|fetch/i.test(e.message)
+            ? `Couldn’t reach the sign-in server (${supabaseHost()}). ${e.message}`
+            : e.message,
       );
       return;
     }
