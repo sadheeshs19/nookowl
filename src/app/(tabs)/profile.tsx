@@ -1,14 +1,15 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Empty, Segmented, T } from '../../components/ui';
-import { deleteTopic, getFeed, setOpenToCalls } from '../../lib/api';
+import { deleteTopic, getFeed, setOpenToCalls, setProfileImage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
 import { unregisterPush } from '../../lib/push';
 import { timeAgo } from '../../lib/format';
+import { deleteProfileImage, pickAndUploadProfileImage, profileImageUrl, type ProfileImageKind } from '../../lib/images';
 import type { FeedTopic } from '../../lib/types';
 import { fonts } from '../../theme/colors';
 import { useTheme, type ThemePreference } from '../../theme/ThemeProvider';
@@ -19,6 +20,7 @@ export default function ProfileScreen() {
   const { credits, openSheet } = useCredits();
   const [topics, setTopics] = useState<FeedTopic[]>([]);
   const [open, setOpen] = useState(profile?.open_to_calls ?? false);
+  const [uploading, setUploading] = useState<ProfileImageKind | null>(null);
 
   const load = useCallback(async () => {
     if (!profile) return;
@@ -47,6 +49,46 @@ export default function ProfileScreen() {
     }
   };
 
+  const changeImage = async (kind: ProfileImageKind) => {
+    if (!profile) return;
+    const old = kind === 'avatar' ? profile.avatar_path : profile.cover_path;
+    try {
+      setUploading(kind);
+      const path = await pickAndUploadProfileImage(profile.id, kind);
+      if (!path) return;
+      await setProfileImage(kind, path);
+      await refreshProfile();
+      deleteProfileImage(old);
+    } catch (e) {
+      Alert.alert('Could not update the photo', e instanceof Error ? e.message : '');
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const removeImage = async (kind: ProfileImageKind) => {
+    if (!profile) return;
+    const old = kind === 'avatar' ? profile.avatar_path : profile.cover_path;
+    try {
+      await setProfileImage(kind, null);
+      await refreshProfile();
+      deleteProfileImage(old);
+    } catch (e) {
+      Alert.alert('Could not remove the photo', e instanceof Error ? e.message : '');
+    }
+  };
+
+  const imageMenu = (kind: ProfileImageKind) => {
+    const has = kind === 'avatar' ? !!profile?.avatar_path : !!profile?.cover_path;
+    const label = kind === 'avatar' ? 'Profile picture' : 'Cover image';
+    if (!has) return changeImage(kind);
+    Alert.alert(label, undefined, [
+      { text: 'Choose a new photo', onPress: () => changeImage(kind) },
+      { text: 'Remove', style: 'destructive', onPress: () => removeImage(kind) },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
   const confirmDelete = (t: FeedTopic) =>
     Alert.alert('Delete this topic?', 'Its likes and comments will be removed too.', [
       { text: 'Cancel', style: 'cancel' },
@@ -70,8 +112,53 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }}>
         <T variant="title">Profile</T>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-          <Avatar name={profile.username} size={80} />
+        <View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={profile.cover_path ? 'Change cover image' : 'Add a cover image'}
+            onPress={() => imageMenu('cover')}
+            style={{ height: 150, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+          >
+            {profile.cover_path ? (
+              <Image source={{ uri: profileImageUrl(profile.cover_path)! }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+            ) : (
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <Icon name="camera" size={22} color={colors.muted} />
+                <T variant="small" muted>Add a cover image</T>
+              </View>
+            )}
+            {uploading === 'cover' ? (
+              <View style={{ position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.overlay }}>
+                <ActivityIndicator color="#FFFFFF" />
+              </View>
+            ) : profile.cover_path ? (
+              <View style={{ position: 'absolute', right: 10, bottom: 10, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.overlay }}>
+                <Icon name="camera" size={14} color="#FFFFFF" />
+                <Text style={{ fontFamily: fonts.bodySemi, fontSize: 12, color: '#FFFFFF' }}>Edit cover</Text>
+              </View>
+            ) : null}
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={profile.avatar_path ? 'Change profile picture' : 'Add a profile picture'}
+            onPress={() => imageMenu('avatar')}
+            style={{ marginTop: -46, marginLeft: 16, alignSelf: 'flex-start' }}
+          >
+            <View style={{ padding: 4, borderRadius: 50, backgroundColor: colors.bg }}>
+              <Avatar name={profile.username} path={profile.avatar_path} size={88} />
+              {uploading === 'avatar' ? (
+                <View style={{ position: 'absolute', top: 4, left: 4, width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.overlay }}>
+                  <ActivityIndicator color="#FFFFFF" />
+                </View>
+              ) : null}
+            </View>
+            <View style={{ position: 'absolute', right: 2, bottom: 2, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.accent, borderWidth: 3, borderColor: colors.bg }}>
+              <Icon name="camera" size={14} color={colors.onAccent} />
+            </View>
+          </Pressable>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: -6 }}>
           <View style={{ flex: 1, gap: 4 }}>
             <T variant="heading">{profile.username}</T>
             <T variant="small" muted>
@@ -99,7 +186,7 @@ export default function ProfileScreen() {
           <Icon name="phone" size={22} color={colors.accentText} />
           <View style={{ flex: 1, gap: 2 }}>
             <T variant="label">{credits ? `${Math.floor(credits.total_seconds / 60)} call minutes` : 'Call minutes'}</T>
-            <T variant="small" muted>10 free every day · watch an ad for more</T>
+            <T variant="small" muted>30 free every day · watch an ad for more</T>
           </View>
           <T variant="label" style={{ color: colors.accentText }}>Get more</T>
         </Pressable>

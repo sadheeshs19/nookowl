@@ -13,7 +13,7 @@ Built with Expo (SDK 58) + Expo Router, Supabase (auth, database, realtime, stor
 - **Requests**: call requests people sent you (requests you've sent stay private). They expire after 15 minutes. Accepting rings the sender, and their minutes only start when they pick up.
 - **Inbox**: chats and message requests (a stranger's first message waits until you accept). Text and hold-to-record voice notes.
 - **Voice calls** over Agora with mute, speaker, talk prompts, report, and a rating plus "stay in touch?" after the call.
-- **Profile**: open-to-calls switch, your topics with their likes and comments, light/dark/system appearance.
+- **Profile**: profile picture and cover image (tap to change), open-to-calls switch, your topics with their likes and comments, light/dark/system appearance.
 - **Safety**: 18+ check in the database, report and block, row level security on every table, calls only allowed when the other person opted in.
 - **Call minutes**: 30 free minutes every day (India time). Watch a rewarded ad for +5 minutes (up to 10 a day; ad minutes never expire). Only the caller spends minutes; answering is free. Calls end when the caller's minutes run out (enforced by the call token, not just the app).
 - **Push notifications**: incoming calls, call requests, accepted requests and messages arrive when the app is closed. Message requests don't show the message text.
@@ -39,7 +39,7 @@ cp .env.example .env
 
 Sign-in works by magic link: the app emails a link, and tapping it **on the same phone** opens Nooks Owl signed in. Supabase's built-in email sender only sends a few emails per hour, so connect your own SMTP (Authentication → Emails → SMTP Settings) before launch.
 
-Then run the other migrations the same way, in order: `20261029000000_credits_and_push.sql` (credits, call-time rules and push notifications) `20261029120000_request_calls_ring.sql` (an accepted call request rings the sender; minutes start only when they pick up) and `20261030000000_free_minutes_30.sql` (30 free minutes a day).
+Then run the other migrations the same way, in order: `20261029000000_credits_and_push.sql` (credits, call-time rules and push notifications) `20261029120000_request_calls_ring.sql` (an accepted call request rings the sender; minutes start only when they pick up) `20261030000000_free_minutes_30.sql` (30 free minutes a day) and `20261030010000_profile_images.sql` (profile pictures and cover images).
 
 ### 3. Agora
 

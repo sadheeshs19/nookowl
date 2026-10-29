@@ -28,8 +28,14 @@ export async function getProfile(id: string): Promise<Profile | null> {
   return check(await supabase.from('profiles').select('*').eq('id', id).maybeSingle()) as Profile | null;
 }
 
-export async function saveProfile(p: Omit<Profile, 'created_at'>) {
+export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path'>) {
   check(await supabase.from('profiles').upsert(p));
+}
+
+/** Saves a new profile picture or cover image (or removes it with null). */
+export async function setProfileImage(kind: 'avatar' | 'cover', path: string | null) {
+  const id = await me();
+  check(await supabase.from('profiles').update(kind === 'avatar' ? { avatar_path: path } : { cover_path: path }).eq('id', id));
 }
 
 export async function setOpenToCalls(open: boolean) {
@@ -78,7 +84,7 @@ export async function getComments(topicId: string): Promise<TopicComment[]> {
   return check(
     await supabase
       .from('topic_comments')
-      .select('*, author:profiles!topic_comments_user_id_fkey(username)')
+      .select('*, author:profiles!topic_comments_user_id_fkey(username, avatar_path)')
       .eq('topic_id', topicId)
       .order('created_at', { ascending: true }),
   ) as TopicComment[];
@@ -115,7 +121,7 @@ export async function getCallRequests(): Promise<{ received: CallRequest[]; sent
     await supabase
       .from('call_requests')
       .select(
-        '*, from_profile:profiles!call_requests_from_id_fkey(username), to_profile:profiles!call_requests_to_id_fkey(username)',
+        '*, from_profile:profiles!call_requests_from_id_fkey(username, avatar_path), to_profile:profiles!call_requests_to_id_fkey(username, avatar_path)',
       )
       .eq('status', 'pending')
       .gt('expires_at', new Date().toISOString())
@@ -275,15 +281,15 @@ export async function listConversations(): Promise<ConversationListItem[]> {
     await supabase
       .from('conversations')
       .select(
-        '*, a:profiles!conversations_user_a_fkey(id, username), b:profiles!conversations_user_b_fkey(id, username), messages(id, conversation_id, sender_id, body, audio_path, audio_ms, created_at)',
+        '*, a:profiles!conversations_user_a_fkey(id, username, avatar_path), b:profiles!conversations_user_b_fkey(id, username, avatar_path), messages(id, conversation_id, sender_id, body, audio_path, audio_ms, created_at)',
       )
       .neq('status', 'ignored')
       .order('last_message_at', { ascending: false })
       .order('created_at', { referencedTable: 'messages', ascending: false })
       .limit(1, { referencedTable: 'messages' }),
   ) as (Conversation & {
-    a: { id: string; username: string };
-    b: { id: string; username: string };
+    a: { id: string; username: string; avatar_path: string | null };
+    b: { id: string; username: string; avatar_path: string | null };
     messages: Message[];
   })[];
   return rows.map(({ a, b, messages, ...c }) => ({

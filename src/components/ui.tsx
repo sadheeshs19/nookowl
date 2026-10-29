@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -14,6 +15,7 @@ import {
 import { fonts } from '../theme/colors';
 import { useTheme } from '../theme/ThemeProvider';
 import { initial } from '../lib/format';
+import { profileImageUrl } from '../lib/images';
 
 export function T({
   children,
@@ -99,8 +101,18 @@ export function Button({
   );
 }
 
-export function Avatar({ name, size = 40 }: { name: string | null | undefined; size?: number }) {
+export function Avatar({ name, path, size = 40 }: { name: string | null | undefined; path?: string | null; size?: number }) {
   const { colors } = useTheme();
+  const uri = profileImageUrl(path);
+  if (uri) {
+    return (
+      <Image
+        accessible={false}
+        source={{ uri }}
+        style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: colors.avatarBg }}
+      />
+    );
+  }
   return (
     <View
       accessible={false}

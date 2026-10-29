@@ -82,6 +82,14 @@
             "buildReactNativeFromSource": true
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Nooks Owl uses your photos so you can choose a profile picture and cover image.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

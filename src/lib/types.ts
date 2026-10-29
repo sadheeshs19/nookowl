@@ -7,6 +7,8 @@ export type Profile = {
   languages: string[];
   interests: string[];
   open_to_calls: boolean;
+  avatar_path: string | null;
+  cover_path: string | null;
   created_at: string;
 };
 
@@ -17,6 +19,7 @@ export type FeedTopic = {
   created_at: string;
   user_id: string;
   username: string;
+  avatar_path: string | null;
   city: string | null;
   languages: string[];
   like_count: number;
@@ -32,7 +35,7 @@ export type TopicComment = {
   user_id: string;
   body: string;
   created_at: string;
-  author: { username: string } | null;
+  author: { username: string; avatar_path: string | null } | null;
 };
 
 export type CallRequest = {
@@ -43,8 +46,8 @@ export type CallRequest = {
   status: 'pending' | 'accepted' | 'declined' | 'cancelled';
   created_at: string;
   expires_at: string;
-  from_profile: { username: string } | null;
-  to_profile: { username: string } | null;
+  from_profile: { username: string; avatar_path: string | null } | null;
+  to_profile: { username: string; avatar_path: string | null } | null;
 };
 
 export type Call = {
@@ -78,7 +81,7 @@ export type Conversation = {
 };
 
 export type ConversationListItem = Conversation & {
-  other: { id: string; username: string };
+  other: { id: string; username: string; avatar_path: string | null };
   last: Message | null;
 };
 

@@ -80,7 +80,7 @@ export default function Inbox() {
                 borderBottomWidth: 1, borderBottomColor: colors.border, opacity: pressed ? 0.7 : 1,
               })}
             >
-              <Avatar name={item.other.username} size={48} />
+              <Avatar name={item.other.username} path={item.other.avatar_path} size={48} />
               <View style={{ flex: 1, gap: 3 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
                   <T variant="label">{item.other.username}</T>

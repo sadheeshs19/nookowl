@@ -80,7 +80,7 @@ export default function Requests() {
         renderItem={({ item }) => (
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Avatar name={item.from_profile?.username} size={48} />
+                <Avatar name={item.from_profile?.username} path={item.from_profile?.avatar_path} size={48} />
                 <View style={{ flex: 1, gap: 3 }}>
                   <T variant="label">{item.from_profile?.username ?? 'Someone'}</T>
                   <T variant="small" muted>

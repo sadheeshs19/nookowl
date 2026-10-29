@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, PanResponder, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Image, PanResponder, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Empty, T } from '../../components/ui';
@@ -8,6 +8,7 @@ import { getPeopleOpenToCalls, sendCallRequest, startCall } from '../../lib/api'
 import { CreditsPill } from '../../components/CreditsSheet';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
+import { profileImageUrl } from '../../lib/images';
 import type { Profile } from '../../lib/types';
 import { fonts } from '../../theme/colors';
 import { useTheme } from '../../theme/ThemeProvider';
@@ -145,7 +146,7 @@ export default function People() {
                   opacity: 0.7, alignItems: 'center', paddingTop: 40,
                 }}
               >
-                <Avatar name={next.username} size={88} />
+                <Avatar name={next.username} path={next.avatar_path} size={88} />
               </View>
             ) : null}
             <Animated.View
@@ -156,7 +157,7 @@ export default function People() {
               style={{
                 position: 'absolute', left: 0, right: 0, top: 0, bottom: 14,
                 borderRadius: 28, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card,
-                padding: 22, alignItems: 'center', gap: 12,
+                padding: 22, paddingTop: 0, alignItems: 'center', gap: 12, overflow: 'hidden',
                 transform: [{ translateX: x }, { rotate }],
               }}
             >
@@ -166,8 +167,13 @@ export default function People() {
               <Animated.Text style={[stamp, { right: 20, color: colors.muted, borderColor: colors.muted, opacity: passOpacity, transform: [{ rotate: '12deg' }] }]}>
                 PASS
               </Animated.Text>
-              <View style={{ marginTop: 10 }}>
-                <Avatar name={current.username} size={104} />
+              <View style={{ alignSelf: 'stretch', marginHorizontal: -22, height: 130, backgroundColor: colors.surface }}>
+                {current.cover_path ? (
+                  <Image source={{ uri: profileImageUrl(current.cover_path)! }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+                ) : null}
+              </View>
+              <View style={{ marginTop: -64, padding: 4, borderRadius: 60, backgroundColor: colors.card }}>
+                <Avatar name={current.username} path={current.avatar_path} size={104} />
               </View>
               <T variant="heading">{current.username}</T>
               <T variant="small" muted>{[current.city, 'open for calls'].filter(Boolean).join(' · ')}</T>
@@ -211,6 +217,7 @@ const stamp = {
   fontFamily: fonts.bodyBold,
   fontSize: 15,
   letterSpacing: 1,
+  zIndex: 2,
 };
 
 function RoundButton({ label, icon, onPress, big, tint }: { label: string; icon: 'close' | 'phone' | 'send'; onPress: () => void; big?: boolean; tint?: string }) {

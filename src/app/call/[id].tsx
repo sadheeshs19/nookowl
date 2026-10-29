@@ -121,7 +121,7 @@ export default function CallScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.callBg, padding: 24, gap: 24, justifyContent: 'center' }}>
         <View style={{ alignItems: 'center', gap: 12 }}>
-          <Avatar name={displayName} size={96} />
+          <Avatar name={displayName} path={other?.avatar_path} size={96} />
           <T variant="title" style={{ textAlign: 'center' }}>Call ended</T>
           {agora.connectedAt ? <T muted>You talked for {clock((now - agora.connectedAt) / 1000)}</T> : null}
           {isCaller && credits ? (
@@ -213,9 +213,7 @@ export default function CallScreen() {
 
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 }}>
         <View style={{ width: 168, height: 168, borderRadius: 84, borderWidth: 3, borderColor: colors.accentText, padding: 8 }}>
-          <View style={{ flex: 1, borderRadius: 80, backgroundColor: colors.avatarBg, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontFamily: fonts.display, fontSize: 56, color: colors.avatarFg }}>{displayName[0]?.toUpperCase() ?? '?'}</Text>
-          </View>
+          <Avatar name={displayName} path={other?.avatar_path} size={146} />
         </View>
         <T variant="title">{displayName}</T>
         {other?.languages.length ? <T muted>Speaks {other.languages.join(', ')}</T> : null}

@@ -24,7 +24,7 @@ export function TopicCard({
   return (
     <Card>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <Avatar name={topic.username} />
+        <Avatar name={topic.username} path={topic.avatar_path} />
         <View style={{ flex: 1, gap: 2 }}>
           <T variant="label">{topic.username}</T>
           {meta ? <T variant="small" muted numberOfLines={1}>{meta}</T> : null}

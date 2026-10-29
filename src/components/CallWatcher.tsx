@@ -24,13 +24,13 @@ export function CallWatcher() {
   const { session, profile } = useAuth();
   const { colors } = useTheme();
   const me = session?.user.id;
-  const [incoming, setIncoming] = useState<{ call: Call; name: string } | null>(null);
+  const [incoming, setIncoming] = useState<{ call: Call; name: string; avatar: string | null } | null>(null);
   const handledResponse = useRef<string | null>(null);
   const lastResponse = Notifications.useLastNotificationResponse();
 
   const showIncoming = useCallback(async (call: Call) => {
     const p = await getProfile(dialerOf(call)).catch(() => null);
-    setIncoming({ call, name: p?.username ?? 'Someone' });
+    setIncoming({ call, name: p?.username ?? 'Someone', avatar: p?.avatar_path ?? null });
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   }, []);
 
@@ -130,7 +130,7 @@ export function CallWatcher() {
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.callBg, padding: 24, justifyContent: 'space-between' }}>
         <View style={{ alignItems: 'center', gap: 14, marginTop: 80 }}>
           <T variant="caps" muted>{incoming.call.rings_caller ? 'Accepted your call request' : 'Incoming call'}</T>
-          <Avatar name={incoming.name} size={120} />
+          <Avatar name={incoming.name} path={incoming.avatar} size={120} />
           <T variant="title">{incoming.name}</T>
           <T muted style={{ textAlign: 'center' }}>
             {incoming.call.rings_caller

@@ -82,7 +82,7 @@ export default function TopicComments() {
           contentContainerStyle={{ padding: 20, gap: 16 }}
           renderItem={({ item }) => (
             <Pressable onLongPress={() => reportComment(item)} style={{ flexDirection: 'row', gap: 10 }}>
-              <Avatar name={item.author?.username} size={32} />
+              <Avatar name={item.author?.username} path={item.author?.avatar_path} size={32} />
               <View style={{ flex: 1, gap: 2 }}>
                 <T variant="small">
                   <T variant="small" style={{ fontFamily: fonts.bodySemi }}>{item.author?.username ?? 'someone'}</T>

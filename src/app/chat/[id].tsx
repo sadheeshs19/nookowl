@@ -171,7 +171,7 @@ export default function Chat() {
         <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="back" color={colors.text} />
         </Pressable>
-        <Avatar name={other?.username} />
+        <Avatar name={other?.username} path={other?.avatar_path} />
         <View style={{ flex: 1 }}>
           <T variant="label">{other?.username ?? ' '}</T>
           {other?.city ? <T variant="small" muted>{other.city}</T> : null}
