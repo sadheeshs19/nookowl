@@ -1,6 +1,6 @@
-import { Redirect } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { OwlBody } from '../components/OwlSplash';
 import { Button, Field, T } from '../components/ui';
@@ -20,6 +20,9 @@ export default function Welcome() {
   const [cooldown, setCooldown] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Password sign-in exists for accounts that have one, such as app-store review accounts.
+  const [usePassword, setUsePassword] = useState(false);
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -58,6 +61,20 @@ export default function Welcome() {
     setCooldown(RESEND_SECONDS);
   };
 
+  const signInWithPassword = async () => {
+    setError(null);
+    clearLinkError();
+    const value = email.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(value) || !password) {
+      setError('Enter your email and password.');
+      return;
+    }
+    setBusy(true);
+    const { error: e } = await supabase.auth.signInWithPassword({ email: value, password });
+    setBusy(false);
+    if (e) setError(/invalid/i.test(e.message) ? 'That email and password don’t match.' : e.message);
+  };
+
   const shownError = error ?? linkError;
 
   return (
@@ -87,10 +104,38 @@ export default function Welcome() {
                   autoCapitalize="none"
                   autoComplete="email"
                   textContentType="emailAddress"
-                  returnKeyType="send"
-                  onSubmitEditing={() => sendLink(email)}
+                  returnKeyType={usePassword ? 'next' : 'send'}
+                  onSubmitEditing={() => (usePassword ? undefined : sendLink(email))}
                 />
-                <Button title="Email me a sign-in link" onPress={() => sendLink(email)} loading={busy} />
+                {usePassword ? (
+                  <>
+                    <Field
+                      label="Password"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry
+                      autoCapitalize="none"
+                      autoComplete="password"
+                      textContentType="password"
+                      returnKeyType="go"
+                      onSubmitEditing={signInWithPassword}
+                    />
+                    <Button title="Sign in" onPress={signInWithPassword} loading={busy} />
+                  </>
+                ) : (
+                  <Button title="Email me a sign-in link" onPress={() => sendLink(email)} loading={busy} />
+                )}
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => {
+                    setUsePassword((v) => !v);
+                    setError(null);
+                  }}
+                  hitSlop={8}
+                  style={{ alignSelf: 'center', paddingVertical: 4 }}
+                >
+                  <T variant="small" muted>{usePassword ? 'Use an email link instead' : 'Have a password? Sign in with it'}</T>
+                </Pressable>
               </View>
             </>
           ) : (
@@ -123,6 +168,14 @@ export default function Welcome() {
           <T variant="small" muted>
             Nooks Owl is for people aged 18 and over. You’ll pick a nickname next; your email is never shown.
           </T>
+          <View style={{ flexDirection: 'row', gap: 16 }}>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'terms' } })} hitSlop={8}>
+              <T variant="small" style={{ color: colors.accentText }}>Terms of Use</T>
+            </Pressable>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'privacy' } })} hitSlop={8}>
+              <T variant="small" style={{ color: colors.accentText }}>Privacy Policy</T>
+            </Pressable>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

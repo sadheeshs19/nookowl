@@ -50,7 +50,7 @@ export default function Onboarding() {
       return;
     }
     if (!agreed) {
-      setError('Please agree to the community promise to continue.');
+      setError('Please agree to the Terms of Use to continue.');
       return;
     }
     if (!session) return;
@@ -137,9 +137,17 @@ export default function Onboarding() {
               }}
             />
             <T style={{ flex: 1 }}>
-              I’m 18 or older, I’ll be kind, and I won’t share anyone’s personal details or record calls.
+              I’m 18 or older and I agree to the Terms of Use, including zero tolerance for abusive or sexual content. I’ll be kind, and I won’t share anyone’s personal details or record calls.
             </T>
           </Pressable>
+          <View style={{ flexDirection: 'row', gap: 16, marginLeft: 36, marginTop: -8 }}>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'terms' } })} hitSlop={8}>
+              <T variant="small" style={{ color: colors.accentText }}>Read the Terms</T>
+            </Pressable>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'privacy' } })} hitSlop={8}>
+              <T variant="small" style={{ color: colors.accentText }}>Privacy Policy</T>
+            </Pressable>
+          </View>
 
           {error ? <T style={{ color: colors.danger }}>{error}</T> : null}
           <Button title="Start talking" onPress={submit} loading={busy} />

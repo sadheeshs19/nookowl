@@ -86,6 +86,12 @@ npx expo start --dev-client
 
 To test calls you need two accounts on two phones (or a phone and an emulator).
 
+## Store review essentials
+
+- **Delete account**: Profile → Delete account. Deploy the function: `npx supabase functions deploy delete-account` (Verify JWT off; it checks the login itself).
+- **Review login**: reviewers can't open a sign-in email, so create review accounts with a password (Supabase → Authentication → Users → Add user → Create new user, tick Auto Confirm). The Welcome screen has “Have a password? Sign in with it”.
+- **Terms, Privacy, Support**: in the app under Profile → Help and account, and on the web from `docs/` (GitHub Pages). Edit `src/legal/content.json`, then run `npm run legal` to rebuild the web pages.
+
 ## Project layout
 
 ```

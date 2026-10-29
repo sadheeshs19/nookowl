@@ -370,3 +370,15 @@ export async function sendHoot(otherId: string): Promise<HootState> {
 export async function listHootsForMe(): Promise<HootForMe[]> {
   return check(await supabase.rpc('list_hoots_for_me')) as HootForMe[];
 }
+
+// ---------------------------------------------------------------- account
+/** Permanently deletes the signed-in account and everything linked to it, then signs out. */
+export async function deleteMyAccount() {
+  const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+  if (error) {
+    const ctx = (error as { context?: Response }).context;
+    const body = ctx && typeof ctx.json === 'function' ? await ctx.json().catch(() => null) : null;
+    throw new Error(body?.error ?? error.message);
+  }
+  await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+}

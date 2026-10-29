@@ -23,17 +23,19 @@ export function T({
   variant = 'body',
   muted,
   numberOfLines,
+  selectable,
 }: {
   children: ReactNode;
   style?: StyleProp<TextStyle>;
   variant?: 'title' | 'heading' | 'topic' | 'body' | 'label' | 'small' | 'caps';
   muted?: boolean;
   numberOfLines?: number;
+  selectable?: boolean;
 }) {
   const { colors } = useTheme();
   const v = variants[variant];
   return (
-    <Text numberOfLines={numberOfLines} style={[v, { color: muted ? colors.muted : colors.text }, style]}>
+    <Text numberOfLines={numberOfLines} selectable={selectable} style={[v, { color: muted ? colors.muted : colors.text }, style]}>
       {children}
     </Text>
   );

@@ -1,0 +1,41 @@
+{
+  "supportEmail": "nooksowl.help@gmail.com",
+  "updated": "30 October 2026",
+  "terms": {
+    "title": "Terms of Use",
+    "intro": "These terms are an agreement between you and Nooks Owl. By creating an account you agree to them. If you don't agree, please don't use the app.",
+    "sections": [
+      { "h": "Who can use Nooks Owl", "p": ["You must be 18 or older. Accounts we believe belong to someone under 18 are removed.", "One account per person. Keep your sign-in email secure; you're responsible for what happens on your account."] },
+      { "h": "Zero tolerance for abuse", "p": ["Nooks Owl is for kind, respectful conversations. We have zero tolerance for objectionable content or abusive users.", "You must not post, say or send anything that is: sexual or sexually suggestive; harassing, bullying, threatening or hateful; violent or encouraging self-harm; illegal, including drugs, weapons or scams; spam or advertising; someone else's personal information.", "You must not record calls without the other person's consent, pretend to be someone else, or try to meet or contact minors.", "If you break these rules we may remove your content, limit your account, or ban you without warning. Serious cases may be reported to the police."] },
+      { "h": "Reporting and blocking", "p": ["You can report any topic, comment, chat, profile or call, and block anyone. Blocked people can't see, message or call you.", "We review reports within 24 hours and remove content and accounts that break these terms."] },
+      { "h": "Your content", "p": ["You own what you post: topics, comments, messages, voice notes and photos. You give us permission to store and show it to other people in the app so the service works.", "Calls are not recorded or stored by us."] },
+      { "h": "Call minutes and ads", "p": ["Everyone gets free call minutes every day, and you can earn more by watching ads. Minutes have no cash value, can't be sold or transferred, and we may change how many are given.", "Trying to cheat the minutes system, for example with fake ad views, may lead to a ban."] },
+      { "h": "Deleting your account", "p": ["You can delete your account any time in Profile → Delete account. This permanently removes your profile, photos, topics, comments, messages, voice notes and call history."] },
+      { "h": "No guarantees", "p": ["Nooks Owl is provided as it is. People you meet are strangers: use your judgement, never share money or personal details, and leave any conversation that feels wrong. We aren't responsible for what other users say or do, to the extent the law allows."] },
+      { "h": "Changes", "p": ["We may update these terms. If the changes are important we'll tell you in the app. Continuing to use Nooks Owl means you accept the updated terms."] }
+    ]
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": "This policy explains what Nooks Owl collects, why, and the choices you have.",
+    "sections": [
+      { "h": "What we collect", "p": ["Account: your email address (only used to sign in; never shown to others).", "Profile: nickname, birth year (only used to check you're 18 or over), city, a line about you, languages, interests, profile picture and cover image.", "What you share: topics, likes, comments, chat messages, voice notes, hoots and call requests.", "Calls: who called whom, when, and for how long, plus ratings you give. We don't record or store call audio.", "Device: a push notification token so we can tell you about calls and messages.", "Ads: Google AdMob may collect your device's advertising ID and usage information to show and measure ads."] },
+      { "h": "How we use it", "p": ["To run the app: show your profile and topics, deliver messages, connect calls and send notifications.", "To keep people safe: review reports, enforce our terms and stop abuse.", "To manage call minutes and rewarded ads.", "We don't sell your personal information."] },
+      { "h": "Who we share it with", "p": ["Other users see your profile, topics, comments and the messages you send them. They never see your email.", "Service providers that run parts of the app for us: Supabase (database, sign-in and file storage, hosted in the EU), Agora (connects voice calls), Expo, Apple and Google (push notifications) and Google AdMob (ads).", "Authorities, if the law requires it or to protect someone's safety."] },
+      { "h": "How long we keep it", "p": ["We keep your information while your account exists. When you delete your account, your profile, photos, topics, comments, messages, voice notes and call history are deleted. Reports about abuse may be kept longer when needed for safety."] },
+      { "h": "Your choices", "p": ["Edit your profile and photos in the app, switch off “Open to calls”, block people, and turn off notifications in your phone's settings.", "Delete your account in Profile → Delete account.", "On iPhone you can stop apps tracking you for ads in Settings → Privacy & Security → Tracking.", "To get a copy of your data or ask a question, email us."] },
+      { "h": "Age", "p": ["Nooks Owl is only for people aged 18 and over. We don't knowingly collect information from anyone younger."] },
+      { "h": "Changes", "p": ["We'll update this page when things change and tell you in the app about important changes."] }
+    ]
+  },
+  "support": {
+    "title": "Support",
+    "intro": "Need help with Nooks Owl? We're here.",
+    "sections": [
+      { "h": "Report someone", "p": ["Tap Report on their topic, in the chat menu, during a call or after a call. Our team reviews every report within 24 hours. You can also block them so they can't contact you again."] },
+      { "h": "Sign-in problems", "p": ["Open the sign-in email on the same phone that has Nooks Owl, and use the newest email. Links expire after a while and work only once. Check your spam folder."] },
+      { "h": "Delete your account", "p": ["Profile → Delete account. It's permanent and removes everything linked to your account."] },
+      { "h": "Contact us", "p": ["Email us and we'll reply within 2 working days."] }
+    ]
+  }
+}

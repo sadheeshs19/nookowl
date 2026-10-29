@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, V
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Empty, Segmented, T } from '../../components/ui';
-import { deleteTopic, getFeed, setOpenToCalls, setProfileImage } from '../../lib/api';
+import { deleteMyAccount, deleteTopic, getFeed, setOpenToCalls, setProfileImage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
 import { unregisterPush } from '../../lib/push';
@@ -21,6 +21,7 @@ export default function ProfileScreen() {
   const [topics, setTopics] = useState<FeedTopic[]>([]);
   const [open, setOpen] = useState(profile?.open_to_calls ?? false);
   const [uploading, setUploading] = useState<ProfileImageKind | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = useCallback(async () => {
     if (!profile) return;
@@ -88,6 +89,30 @@ export default function ProfileScreen() {
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
+
+  const confirmDeleteAccount = () =>
+    Alert.alert(
+      'Delete your account?',
+      'This permanently deletes your profile, photos, topics, comments, chats, voice notes, hoots, call history and minutes. It can’t be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete forever',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await deleteMyAccount();
+              await signOut().catch(() => {});
+            } catch (e) {
+              Alert.alert('Couldn’t delete your account', `${e instanceof Error ? e.message : ''} Try again, or email us from Support.`);
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
 
   const confirmDelete = (t: FeedTopic) =>
     Alert.alert('Delete this topic?', 'Its likes and comments will be removed too.', [
@@ -249,6 +274,32 @@ export default function ProfileScreen() {
           ]}
         />
 
+        <T variant="caps" muted>Help and account</T>
+        <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
+          {(
+            [
+              ['Terms of Use', 'terms'],
+              ['Privacy Policy', 'privacy'],
+              ['Support and contact', 'support'],
+            ] as const
+          ).map(([label, doc], i) => (
+            <Pressable
+              key={doc}
+              accessibilityRole="button"
+              onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc } })}
+              style={({ pressed }) => ({
+                flexDirection: 'row', alignItems: 'center', minHeight: 50, paddingHorizontal: 14,
+                borderTopWidth: i ? 1 : 0, borderTopColor: colors.border, opacity: pressed ? 0.7 : 1,
+              })}
+            >
+              <T style={{ flex: 1 }}>{label}</T>
+              <View style={{ transform: [{ rotate: '180deg' }] }}>
+                <Icon name="back" size={18} color={colors.muted} />
+              </View>
+            </Pressable>
+          ))}
+        </View>
+
         <Button
           kind="secondary"
           title="Sign out"
@@ -258,6 +309,7 @@ export default function ProfileScreen() {
           }}
           style={{ marginTop: 8 }}
         />
+        <Button kind="ghost" title="Delete account" loading={deleting} onPress={confirmDeleteAccount} style={{ marginBottom: 8 }} />
       </ScrollView>
     </SafeAreaView>
   );
