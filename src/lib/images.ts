@@ -1,5 +1,3 @@
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
 import { supabase } from './supabase';
 
 export type ProfileImageKind = 'avatar' | 'cover';
@@ -23,6 +21,19 @@ const SHAPE: Record<ProfileImageKind, { aspect: [number, number]; width: number 
  */
 export async function pickAndUploadProfileImage(userId: string, kind: ProfileImageKind): Promise<string | null> {
   const shape = SHAPE[kind];
+  // Loaded only when needed, so an older app build without these native parts
+  // still opens; it just can't change photos until it's updated.
+  let ImagePicker: typeof import('expo-image-picker');
+  let Manip: typeof import('expo-image-manipulator');
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    ImagePicker = require('expo-image-picker');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    Manip = require('expo-image-manipulator');
+  } catch {
+    throw new Error('Update Nooks Owl to the latest version to change photos.');
+  }
+  const { ImageManipulator, SaveFormat } = Manip;
   const picked = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ['images'],
     allowsEditing: true,
