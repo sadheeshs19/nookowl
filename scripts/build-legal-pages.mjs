@@ -64,6 +64,8 @@ writeFileSync(new URL('index.html', out), shell('A quiet corner to talk', `<h1>A
 <a href="privacy.html"><b>Privacy Policy</b><span class="muted">What we collect and why</span></a>
 <a href="support.html"><b>Support</b><span class="muted">Get help or contact us</span></a></div>`));
 
+// Serve the site at the app's own domain.
+writeFileSync(new URL('CNAME', out), 'nooksowl.com\n');
 // No Jekyll processing on GitHub Pages.
 writeFileSync(new URL('.nojekyll', out), '');
 const icon = new URL('../assets/brand/app-icon-1024.png', import.meta.url);
