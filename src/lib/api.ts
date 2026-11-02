@@ -48,6 +48,12 @@ export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' 
   check(await supabase.from('profiles').insert(p));
 }
 
+/** Bio, city, languages and interests. */
+export async function updateProfileDetails(d: { bio: string | null; city: string | null; languages: string[]; interests: string[] }) {
+  const id = await me();
+  check(await supabase.from('profiles').update(d).eq('id', id));
+}
+
 export async function setShowAge(show_age: boolean) {
   const id = await me();
   check(await supabase.from('profiles').update({ show_age }).eq('id', id));

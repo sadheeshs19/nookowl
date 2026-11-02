@@ -181,9 +181,22 @@ export default function ProfileScreen() {
             <T variant="small" muted>
               {[profile.city, profile.languages.length ? `Speaks ${profile.languages.join(', ')}` : null].filter(Boolean).join(' · ')}
             </T>
-            {profile.bio ? <T variant="small">{profile.bio}</T> : null}
+            {profile.bio ? (
+              <T variant="small">{profile.bio}</T>
+            ) : (
+              <Pressable accessibilityRole="button" onPress={() => router.push('/edit-profile')}>
+                <T variant="small" style={{ color: colors.accentText }}>+ Add a bio so people know what to talk about</T>
+              </Pressable>
+            )}
           </View>
         </View>
+
+        <Button
+          kind="secondary"
+          title="Edit profile"
+          icon={<Icon name="user" size={18} color={colors.text} />}
+          onPress={() => router.push('/edit-profile')}
+        />
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}>
           <View style={{ flex: 1, gap: 3 }}>

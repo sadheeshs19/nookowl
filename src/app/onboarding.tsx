@@ -7,9 +7,9 @@ import { Button, Chip, Field, T } from '../components/ui';
 import { isUsernameTaken, saveProfile } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { GENDERS, type Gender } from '../lib/gender';
+import { INTERESTS } from '../lib/interests';
 import { useTheme } from '../theme/ThemeProvider';
 
-const INTERESTS = ['Just chat', 'Languages', 'Movies', 'Music', 'Books', 'Cricket', 'Football', 'Travel', 'Food', 'Careers', 'Tech', 'Fitness', 'Gaming', 'Night owl'];
 
 export default function Onboarding() {
   const { colors } = useTheme();
