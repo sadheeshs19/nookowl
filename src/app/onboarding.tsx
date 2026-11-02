@@ -23,6 +23,7 @@ export default function Onboarding() {
   const [interests, setInterests] = useState<string[]>([]);
   const [openToCalls, setOpenToCalls] = useState(false);
   const [cardChats, setCardChats] = useState(true);
+  const [showAge, setShowAge] = useState(true);
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +79,7 @@ export default function Onboarding() {
         interests,
         open_to_calls: openToCalls,
         allow_card_chats: cardChats,
+        show_age: showAge,
       });
       await refreshProfile();
       router.replace('/(tabs)');
@@ -94,18 +96,25 @@ export default function Onboarding() {
         <ScrollView contentContainerStyle={{ padding: 24, gap: 20 }} keyboardShouldPersistTaps="handled">
           <View style={{ gap: 6 }}>
             <T variant="title">Set up your nook</T>
-            <T muted>People see your nickname, gender, city and languages. Never your email.</T>
+            <T muted>People see your nickname, age, gender, city and languages. Never your email.</T>
           </View>
 
           <Field label="Nickname" value={username} onChangeText={setUsername} placeholder="arjun.talks" autoCapitalize="none" autoCorrect={false} />
           <Field
             label="Birth year"
-            hint="Only used to check you’re 18 or over. Not shown to anyone."
+            hint="Used to check you’re 18 or over. Your birth year is never shown."
             value={birthYear}
             onChangeText={(v) => setBirthYear(v.replace(/[^0-9]/g, '').slice(0, 4))}
             placeholder="1998"
             keyboardType="number-pad"
           />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <T variant="label">Show my age</T>
+              <T variant="small" muted>Shows your age (like 27) on your profile. You can hide it anytime.</T>
+            </View>
+            <Switch accessibilityLabel="Show my age" value={showAge} onValueChange={setShowAge} trackColor={{ true: colors.online }} />
+          </View>
           <View style={{ gap: 10 }}>
             <T variant="label">Gender</T>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

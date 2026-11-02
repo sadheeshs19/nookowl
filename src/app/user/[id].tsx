@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
+import { GenderAge } from '../../components/GenderAge';
 import { Avatar, Button, Card, Empty, T } from '../../components/ui';
 import { block, getFeed, getOrStartConversation, getProfileView, report, sendCallRequest } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
 import { timeAgo } from '../../lib/format';
-import { genderLabel } from '../../lib/gender';
 import { profileImageUrl } from '../../lib/images';
 import type { FeedTopic, ProfileView } from '../../lib/types';
 import { fonts } from '../../theme/colors';
@@ -129,7 +129,7 @@ export default function UserProfile() {
 
   const canChat = !!person.conversation_id || person.allow_card_chats !== false;
   const canRequest = person.open_to_calls && person.can_call && !requested;
-  const details = [genderLabel(person.gender), person.city, person.languages.length ? `Speaks ${person.languages.join(', ')}` : null]
+  const details = [person.city, person.languages.length ? `Speaks ${person.languages.join(', ')}` : null]
     .filter(Boolean)
     .join(' · ');
 
@@ -149,7 +149,10 @@ export default function UserProfile() {
         </View>
 
         <View style={{ gap: 4, marginTop: -6 }}>
-          <T variant="heading">{person.username}</T>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <T variant="heading">{person.username}</T>
+            <GenderAge gender={person.gender} age={person.age} size="large" />
+          </View>
           {details ? <T variant="small" muted>{details}</T> : null}
           {person.open_to_calls ? <T variant="small" style={{ color: colors.online }}>Open for calls</T> : null}
         </View>

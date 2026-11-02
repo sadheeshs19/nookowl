@@ -15,6 +15,10 @@ export type Profile = {
   allow_card_chats?: boolean;
   /** Private: strangers only see nickname, photo and gender. */
   is_private?: boolean;
+  /** Show my age (from birth year) on my profile. */
+  show_age?: boolean;
+  /** Age, when the viewer is allowed to see it (people list and profile pages only). */
+  age?: number | null;
   /** Suspended by a moderator. */
   banned?: boolean;
   created_at: string;

@@ -44,8 +44,13 @@ export async function getProfileView(id: string): Promise<ProfileView | null> {
   return rows[0] ?? null;
 }
 
-export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call' | 'is_private'>) {
+export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call' | 'is_private' | 'age'>) {
   check(await supabase.from('profiles').insert(p));
+}
+
+export async function setShowAge(show_age: boolean) {
+  const id = await me();
+  check(await supabase.from('profiles').update({ show_age }).eq('id', id));
 }
 
 export async function setPrivateProfile(is_private: boolean) {

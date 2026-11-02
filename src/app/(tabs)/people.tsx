@@ -3,12 +3,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, Image, PanResponder, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
+import { GenderAge } from '../../components/GenderAge';
 import { Avatar, Button, Empty, T } from '../../components/ui';
 import { getOrStartConversation, getPeopleOpenToCalls, sendCallRequest } from '../../lib/api';
 import { CreditsPill } from '../../components/CreditsSheet';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
-import { genderLabel } from '../../lib/gender';
 import { profileImageUrl } from '../../lib/images';
 import type { Profile } from '../../lib/types';
 import { fonts } from '../../theme/colors';
@@ -180,9 +180,12 @@ export default function People() {
                 <View style={{ marginTop: -64, padding: 4, borderRadius: 60, backgroundColor: colors.card }}>
                   <Avatar name={current.username} path={current.avatar_path} size={104} />
                 </View>
-                <T variant="heading">{current.username}</T>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <T variant="heading">{current.username}</T>
+                  <GenderAge gender={current.gender} age={current.age} size="large" />
+                </View>
               </Pressable>
-              <T variant="small" muted>{[genderLabel(current.gender), current.city, 'open for calls'].filter(Boolean).join(' · ')}</T>
+              <T variant="small" muted>{[current.city, 'open for calls'].filter(Boolean).join(' · ')}</T>
               {current.bio ? <T style={{ textAlign: 'center' }}>{current.bio}</T> : null}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>
                 {[...current.languages, ...current.interests].slice(0, 6).map((tag) => (

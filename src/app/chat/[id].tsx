@@ -12,6 +12,7 @@ import { ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform, Pre
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HootButton } from '../../components/HootButton';
 import { Icon } from '../../components/icons';
+import { GenderAge } from '../../components/GenderAge';
 import { VoiceNote } from '../../components/VoiceNote';
 import { Avatar, Button, T } from '../../components/ui';
 import {
@@ -26,7 +27,6 @@ import {
   startCall,
 } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
-import { genderLabel } from '../../lib/gender';
 import { useCredits } from '../../lib/credits';
 import { clock } from '../../lib/format';
 import type { Conversation, Message, Profile } from '../../lib/types';
@@ -184,9 +184,12 @@ export default function Chat() {
         >
           <Avatar name={other?.username} path={other?.avatar_path} />
           <View style={{ flex: 1 }}>
-            <T variant="label">{other?.username ?? ' '}</T>
-            {other?.city || hootCount || genderLabel(other?.gender) ? (
-              <T variant="small" muted>{[genderLabel(other?.gender), other?.city, hootCount ? `${hootCount} ${hootCount === 1 ? 'hoot' : 'hoots'}` : null].filter(Boolean).join(' · ')}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <T variant="label">{other?.username ?? ' '}</T>
+              <GenderAge gender={other?.gender} age={other?.age} />
+            </View>
+            {other?.city || hootCount ? (
+              <T variant="small" muted>{[other?.city, hootCount ? `${hootCount} ${hootCount === 1 ? 'hoot' : 'hoots'}` : null].filter(Boolean).join(' · ')}</T>
             ) : null}
           </View>
         </Pressable>

@@ -3,9 +3,10 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
+import { GenderAge } from '../../components/GenderAge';
 import { Avatar, Button, Card, Chip, Empty, Segmented, T } from '../../components/ui';
-import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setAllowCardChats, setGender, setPrivateProfile, setOpenToCalls, setProfileImage, setWhoCanCall } from '../../lib/api';
-import { GENDERS, WHO_CAN_CALL, genderLabel, type Gender, type WhoCanCall } from '../../lib/gender';
+import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setAllowCardChats, setGender, setPrivateProfile, setShowAge, setOpenToCalls, setProfileImage, setWhoCanCall } from '../../lib/api';
+import { GENDERS, WHO_CAN_CALL, type Gender, type WhoCanCall } from '../../lib/gender';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
 import { showAdPrivacyOptions } from '../../lib/ads';
@@ -130,6 +131,15 @@ export default function ProfileScreen() {
     }
   };
 
+  const changeShowAge = async (v: boolean) => {
+    try {
+      await setShowAge(v);
+      await refreshProfile();
+    } catch (e) {
+      Alert.alert('Could not update', e instanceof Error ? e.message : '');
+    }
+  };
+
   const confirmDeleteAccount = () =>
     Alert.alert(
       'Delete your account?',
@@ -225,9 +235,12 @@ export default function ProfileScreen() {
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: -6 }}>
           <View style={{ flex: 1, gap: 4 }}>
-            <T variant="heading">{profile.username}</T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <T variant="heading">{profile.username}</T>
+              <GenderAge gender={profile.gender} age={profile.show_age === false ? null : new Date().getFullYear() - profile.birth_year} size="large" />
+            </View>
             <T variant="small" muted>
-              {[genderLabel(profile.gender), profile.city, profile.languages.length ? `Speaks ${profile.languages.join(', ')}` : null].filter(Boolean).join(' · ')}
+              {[profile.city, profile.languages.length ? `Speaks ${profile.languages.join(', ')}` : null].filter(Boolean).join(' · ')}
             </T>
             {profile.bio ? <T variant="small">{profile.bio}</T> : null}
           </View>
@@ -276,6 +289,15 @@ export default function ProfileScreen() {
               onValueChange={changeCardChats}
               trackColor={{ true: colors.online }}
             />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <T variant="label">Show my age</T>
+              <T variant="small" muted>
+                {profile.show_age === false ? 'Hidden. Your birth year is never shown.' : `Others see you as ${new Date().getFullYear() - profile.birth_year}. Your birth year is never shown.`}
+              </T>
+            </View>
+            <Switch accessibilityLabel="Show my age" value={profile.show_age !== false} onValueChange={changeShowAge} trackColor={{ true: colors.online }} />
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ flex: 1, gap: 2 }}>

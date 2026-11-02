@@ -28,7 +28,10 @@ export type IconName =
   | 'stop'
   | 'check'
   | 'camera'
-  | 'owl';
+  | 'owl'
+  | 'female'
+  | 'male'
+  | 'nonbinary';
 
 export function Icon({
   name,
@@ -89,6 +92,24 @@ export function Icon({
         <>
           <Circle {...common} cx={11} cy={11} r={7} />
           <Path {...common} d="M20 20l-4-4" />
+        </>
+      )}
+      {name === 'female' && (
+        <>
+          <Circle {...common} cx={12} cy={9} r={5} />
+          <Path {...common} d="M12 14v7M9 18h6" />
+        </>
+      )}
+      {name === 'male' && (
+        <>
+          <Circle {...common} cx={10} cy={14} r={5} />
+          <Path {...common} d="M13.5 10.5L20 4M15 4h5v5" />
+        </>
+      )}
+      {name === 'nonbinary' && (
+        <>
+          <Circle {...common} cx={12} cy={14} r={5} />
+          <Path {...common} d="M12 9V3M9.5 4.5l5 3M14.5 4.5l-5 3" />
         </>
       )}
       {name === 'owl' && (
