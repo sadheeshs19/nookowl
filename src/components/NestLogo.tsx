@@ -3,10 +3,16 @@ import Svg, { Circle, Ellipse, Path } from 'react-native-svg';
 import { fonts } from '../theme/colors';
 import { useTheme } from '../theme/ThemeProvider';
 
-/** The owl peeking out of a little woven nest. */
+/** The owl peeking out of a little woven nest, with an egg on each side. */
 export function NestIcon({ size = 36 }: { size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 48 48" accessibilityElementsHidden importantForAccessibility="no">
+      <Ellipse cx={10.5} cy={21.5} rx={4} ry={5} fill="#9BD3E8" />
+      <Ellipse cx={9.4} cy={19.6} rx={1.1} ry={0.8} fill="#FFFFFF" opacity={0.85} />
+      <Circle cx={11.6} cy={23} r={0.6} fill="#5FA8C4" />
+      <Ellipse cx={37.5} cy={21.5} rx={4} ry={5} fill="#B7E2F0" />
+      <Ellipse cx={36.4} cy={19.6} rx={1.1} ry={0.8} fill="#FFFFFF" opacity={0.85} />
+      <Circle cx={38.6} cy={23.2} r={0.6} fill="#5FA8C4" />
       <Path d="M15.5 9.5l1.6-5.5 4 4.6zM32.5 9.5l-1.6-5.5-4 4.6z" fill="#7C2D12" />
       <Ellipse cx={24} cy={17.5} rx={11} ry={11} fill="#9A3412" />
       <Ellipse cx={24} cy={21} rx={7} ry={6} fill="#FDEBE2" />
