@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TopicSkeletons } from '../../components/Skeleton';
 import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
 import { OwlPull } from '../../components/OwlPull';
+import { NestLogo } from '../../components/NestLogo';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { TopicCard } from '../../components/TopicCard';
@@ -83,8 +84,8 @@ export default function Topics() {
 
   const header = (
     <View style={{ gap: 14, paddingBottom: 12 }}>
-      <View style={{ gap: 4 }}>
-        <T variant="caps" muted>Nooks Owl</T>
+      <View style={{ gap: 10 }}>
+        <NestLogo />
         <T variant="title">What do you want to talk about?</T>
       </View>
 
