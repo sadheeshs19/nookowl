@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Animated, Image, PanResponder, Pressable, Tex
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Empty, T } from '../../components/ui';
-import { getPeopleOpenToCalls, sendCallRequest, startCall } from '../../lib/api';
+import { getOrStartConversation, getPeopleOpenToCalls, sendCallRequest } from '../../lib/api';
 import { CreditsPill } from '../../components/CreditsSheet';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
@@ -19,7 +19,7 @@ const SWIPE_AT = 110;
 export default function People() {
   const { colors } = useTheme();
   const { profile: me } = useAuth();
-  const { credits, openSheet, ensureCanCall, refresh: refreshCredits } = useCredits();
+  const { credits, openSheet } = useCredits();
   const [people, setPeople] = useState<Profile[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -94,15 +94,13 @@ export default function People() {
     }),
   );
 
-  const callNow = async () => {
+  const chat = async () => {
     if (!current) return;
-    if (!(await ensureCanCall())) return;
     try {
-      const call = await startCall(current.id);
-      refreshCredits();
-      router.push({ pathname: '/call/[id]', params: { id: call.id, name: current.username } });
+      const conv = await getOrStartConversation(current.id);
+      router.push({ pathname: '/chat/[id]', params: { id: conv.id } });
     } catch (e) {
-      Alert.alert('Could not start the call', e instanceof Error ? e.message : '');
+      Alert.alert('Could not start a chat', e instanceof Error ? e.message : '');
     }
   };
 
@@ -163,7 +161,7 @@ export default function People() {
               }}
             >
               <Animated.Text style={[stamp, { left: 20, color: colors.online, borderColor: colors.online, opacity: reqOpacity, transform: [{ rotate: '-12deg' }] }]}>
-                REQUEST
+                CALL REQUEST
               </Animated.Text>
               <Animated.Text style={[stamp, { right: 20, color: colors.muted, borderColor: colors.muted, opacity: passOpacity, transform: [{ rotate: '12deg' }] }]}>
                 PASS
@@ -200,8 +198,8 @@ export default function People() {
       {current ? (
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', gap: 28, paddingVertical: 14 }}>
           <RoundButton label="Pass" icon="close" onPress={() => advance(-1)} />
-          <RoundButton label="Call now" icon="phone" big onPress={callNow} />
-          <RoundButton label="Request" icon="send" onPress={() => advance(1)} tint={colors.online} />
+          <RoundButton label="Call request" icon="phone" big onPress={() => advance(1)} />
+          <RoundButton label="Chat" icon="message" onPress={chat} />
         </View>
       ) : null}
     </SafeAreaView>
@@ -221,7 +219,7 @@ const stamp = {
   zIndex: 2,
 };
 
-function RoundButton({ label, icon, onPress, big, tint }: { label: string; icon: 'close' | 'phone' | 'send'; onPress: () => void; big?: boolean; tint?: string }) {
+function RoundButton({ label, icon, onPress, big, tint }: { label: string; icon: 'close' | 'phone' | 'message'; onPress: () => void; big?: boolean; tint?: string }) {
   const { colors } = useTheme();
   const size = big ? 72 : 60;
   return (
