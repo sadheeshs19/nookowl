@@ -8,8 +8,8 @@ import { useTheme } from '../theme/ThemeProvider';
 export const ISLAND_HEIGHT = 64;
 const GAP = 10;
 
-/** The floating glass island is iPhone/iPad only; Android keeps the standard tab bar. */
-export const USE_ISLAND = Platform.OS === 'ios';
+/** The floating glass island, on both iOS and Android. Set false to go back to the standard tab bar. */
+export const USE_ISLAND = true;
 
 /**
  * Bottom space a tab screen must leave so its content can scroll clear of the island.
@@ -39,7 +39,7 @@ export function useIslandStyle() {
     borderColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.08)',
     backgroundColor: 'transparent',
     overflow: 'hidden' as const,
-    elevation: 0,
+    elevation: Platform.OS === 'android' ? 8 : 0,
     shadowColor: '#000',
     shadowOpacity: isDark ? 0.4 : 0.12,
     shadowRadius: 18,
@@ -79,7 +79,7 @@ export function GlassBackground() {
     <View
       style={[
         StyleSheet.absoluteFill,
-        { backgroundColor: isDark ? 'rgba(28,28,38,0.92)' : 'rgba(255,255,255,0.9)' },
+        { backgroundColor: isDark ? 'rgba(28,28,38,0.94)' : 'rgba(255,255,255,0.94)' },
       ]}
     />
   );
