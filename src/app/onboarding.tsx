@@ -22,6 +22,7 @@ export default function Onboarding() {
   const [gender, setGender] = useState<Gender | null>(null);
   const [interests, setInterests] = useState<string[]>([]);
   const [openToCalls, setOpenToCalls] = useState(false);
+  const [cardChats, setCardChats] = useState(true);
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +77,7 @@ export default function Onboarding() {
         gender,
         interests,
         open_to_calls: openToCalls,
+        allow_card_chats: cardChats,
       });
       await refreshProfile();
       router.replace('/(tabs)');
@@ -130,9 +132,17 @@ export default function Onboarding() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
             <View style={{ flex: 1, gap: 2 }}>
               <T variant="label">Open to calls</T>
-              <T variant="small" muted>Show me in People so others can call or send call requests. You can change this anytime.</T>
+              <T variant="small" muted>Show me in People so others can send me call requests. You can change this anytime.</T>
             </View>
             <Switch accessibilityLabel="Open to calls" value={openToCalls} onValueChange={setOpenToCalls} trackColor={{ true: colors.online }} />
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <T variant="label">Chat button on my card</T>
+              <T variant="small" muted>Let people in People message you directly. Turn off to get call requests only. You can change this anytime.</T>
+            </View>
+            <Switch accessibilityLabel="Chat button on my card" value={cardChats} onValueChange={setCardChats} trackColor={{ true: colors.online }} />
           </View>
 
           <Pressable

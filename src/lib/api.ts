@@ -31,7 +31,7 @@ export async function getProfile(id: string): Promise<Profile | null> {
   return check(await supabase.from('profiles').select('*').eq('id', id).maybeSingle()) as Profile | null;
 }
 
-export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call' | 'allow_card_chats'>) {
+export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call'>) {
   check(await supabase.from('profiles').upsert(p));
 }
 
