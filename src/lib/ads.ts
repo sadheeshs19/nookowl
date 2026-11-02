@@ -6,11 +6,23 @@ import mobileAds, { AdsConsent, TestIds } from 'react-native-google-mobile-ads';
  * Until you add your own AdMob IDs to .env, Google's test ads are used
  * (always safe to tap; they never earn or cost anything).
  */
+// Nooks Owl's AdMob ad units (not secret). Environment variables can override them.
+const UNITS = {
+  rewarded: {
+    android: 'ca-app-pub-8952413727551348/8458574866',
+    ios: 'ca-app-pub-8952413727551348/1592290320',
+  },
+  interstitial: {
+    android: 'ca-app-pub-8952413727551348/9580084844',
+    ios: 'ca-app-pub-8952413727551348/1209146943',
+  },
+};
+
 export function rewardedAdUnitId(): string {
   const own =
     Platform.OS === 'ios'
-      ? process.env.EXPO_PUBLIC_ADMOB_REWARDED_IOS
-      : process.env.EXPO_PUBLIC_ADMOB_REWARDED_ANDROID;
+      ? process.env.EXPO_PUBLIC_ADMOB_REWARDED_IOS || UNITS.rewarded.ios
+      : process.env.EXPO_PUBLIC_ADMOB_REWARDED_ANDROID || UNITS.rewarded.android;
   if (__DEV__ || !own) return TestIds.REWARDED;
   return own;
 }
@@ -45,8 +57,8 @@ export async function showAdPrivacyOptions(): Promise<boolean> {
 export function interstitialAdUnitId(): string {
   const own =
     Platform.OS === 'ios'
-      ? process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS
-      : process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID;
+      ? process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS || UNITS.interstitial.ios
+      : process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID || UNITS.interstitial.android;
   if (__DEV__ || !own) return TestIds.INTERSTITIAL;
   return own;
 }

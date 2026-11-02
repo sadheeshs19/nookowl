@@ -66,6 +66,8 @@ writeFileSync(new URL('index.html', out), shell('A quiet corner to talk', `<h1>A
 
 // Serve the site at the app's own domain.
 writeFileSync(new URL('CNAME', out), 'nooksowl.com\n');
+// AdMob's authorised seller file, served at https://nooksowl.com/app-ads.txt
+writeFileSync(new URL('app-ads.txt', out), 'google.com, pub-8952413727551348, DIRECT, f08c47fec0942fa0\n');
 // No Jekyll processing on GitHub Pages.
 writeFileSync(new URL('.nojekyll', out), '');
 const icon = new URL('../assets/brand/app-icon-1024.png', import.meta.url);
