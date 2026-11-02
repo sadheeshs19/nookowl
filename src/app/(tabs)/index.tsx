@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Alert, Pressable, RefreshControl, Text, TextInput, View, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TopicSkeletons } from '../../components/Skeleton';
-import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
+import { useCollapsingTitle } from '../../components/LargeTitle';
 import { OwlPull } from '../../components/OwlPull';
 import { NestLogo } from '../../components/NestLogo';
 import { useTabBarSpace } from '../../components/GlassTabBar';
@@ -85,7 +85,6 @@ export default function Topics() {
   const header = (
     <View style={{ gap: 14, paddingBottom: 12 }}>
       <View style={{ gap: 10 }}>
-        <NestLogo />
         <T variant="title">What do you want to talk about?</T>
       </View>
 
@@ -163,6 +162,15 @@ export default function Topics() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 4, paddingBottom: 8, backgroundColor: colors.bg, zIndex: 2 }}>
+        <NestLogo />
+        <Animated.View
+          style={{
+            position: 'absolute', left: 0, right: 0, bottom: 0, height: 0.5, backgroundColor: colors.border2,
+            opacity: scrollY.interpolate({ inputRange: [0, 16], outputRange: [0, 1], extrapolate: 'clamp' }),
+          }}
+        />
+      </View>
       <Animated.FlatList
         data={topics}
         onScroll={onScroll}
@@ -212,10 +220,7 @@ export default function Topics() {
           )
         }
       />
-      <OwlPull scrollY={scrollY} refreshing={refreshing} />
-      <CompactTitleBar title="Nooks" scrollY={scrollY} showAfter={40}>
-        <NestLogo size={28} />
-      </CompactTitleBar>
+      <OwlPull scrollY={scrollY} refreshing={refreshing} top={50} />
     </SafeAreaView>
   );
 }
