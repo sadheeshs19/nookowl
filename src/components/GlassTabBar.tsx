@@ -8,16 +8,23 @@ import { useTheme } from '../theme/ThemeProvider';
 export const ISLAND_HEIGHT = 64;
 const GAP = 10;
 
-/** Bottom space a tab screen must leave so its content can scroll clear of the island. */
-export function useTabBarSpace() {
+/** The floating glass island is iPhone/iPad only; Android keeps the standard tab bar. */
+export const USE_ISLAND = Platform.OS === 'ios';
+
+/**
+ * Bottom space a tab screen must leave so its content can scroll clear of the island.
+ * On Android (standard tab bar) it's just the screen's normal padding.
+ */
+export function useTabBarSpace(normal = 0) {
   const insets = useSafeAreaInsets();
-  return ISLAND_HEIGHT + GAP + Math.max(insets.bottom, GAP) + 8;
+  return USE_ISLAND ? ISLAND_HEIGHT + GAP + Math.max(insets.bottom, GAP) + 8 : normal;
 }
 
 /** Style for the floating, rounded tab bar. */
 export function useIslandStyle() {
   const insets = useSafeAreaInsets();
-  const { isDark } = useTheme();
+  const { colors, isDark } = useTheme();
+  if (!USE_ISLAND) return { backgroundColor: colors.bg, borderTopColor: colors.border };
   return {
     position: 'absolute' as const,
     left: 16,
@@ -41,7 +48,7 @@ export function useIslandStyle() {
 }
 
 // The blur needs a native part that older test builds of the app don't have.
-// Without it (and on Android, where blur needs extra setup) we draw frosted glass instead.
+// Without it we draw frosted glass instead.
 let BlurView: ComponentType<ViewProps & { intensity?: number; tint?: string }> | null = null;
 if (Platform.OS === 'ios' && requireOptionalNativeModule('ExpoBlur')) {
   try {
@@ -55,6 +62,7 @@ if (Platform.OS === 'ios' && requireOptionalNativeModule('ExpoBlur')) {
 /** The glass behind the tab icons. */
 export function GlassBackground() {
   const { isDark } = useTheme();
+  if (!USE_ISLAND) return null;
   if (BlurView) {
     return (
       <View style={StyleSheet.absoluteFill}>

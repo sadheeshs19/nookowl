@@ -13,7 +13,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Requests() {
   const { colors } = useTheme();
-  const tabSpace = useTabBarSpace();
+  const tabSpace = useTabBarSpace(20);
   // Only requests sent to me are shown; requests I've sent stay private.
   const [list, setList] = useState<CallRequest[]>([]);
   const [loading, setLoading] = useState(true);

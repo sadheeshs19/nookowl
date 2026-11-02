@@ -15,7 +15,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Inbox() {
   const { colors } = useTheme();
-  const tabSpace = useTabBarSpace();
+  const tabSpace = useTabBarSpace(8);
   const { session } = useAuth();
   const me = session?.user.id;
   const [tab, setTab] = useState<'chats' | 'requests'>('chats');

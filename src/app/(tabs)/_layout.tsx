@@ -2,7 +2,7 @@ import { Redirect } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
 import { useCallback, useEffect, useState } from 'react';
 import { Icon, type IconName } from '../../components/icons';
-import { GlassBackground, useIslandStyle } from '../../components/GlassTabBar';
+import { GlassBackground, USE_ISLAND, useIslandStyle } from '../../components/GlassTabBar';
 import { getCallRequests, listConversations, listHootsForMe } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useRealtime } from '../../lib/useRealtime';
@@ -59,7 +59,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.accentText,
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: island,
-        tabBarBackground: () => <GlassBackground />,
+        tabBarBackground: USE_ISLAND ? () => <GlassBackground /> : undefined,
         tabBarLabelStyle: { fontFamily: fonts.bodySemi, fontSize: 11 },
         tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.onAccent, fontFamily: fonts.bodyBold, fontSize: 11 },
         sceneStyle: { backgroundColor: colors.bg },

@@ -16,7 +16,7 @@ const DEFAULT_TAGS = ['LanguageExchange', 'CantSleep', 'Cricket', 'Careers', 'Ru
 
 export default function Topics() {
   const { colors } = useTheme();
-  const tabSpace = useTabBarSpace();
+  const tabSpace = useTabBarSpace(20);
   const { session } = useAuth();
   const me = session?.user.id;
   const [query, setQuery] = useState('');

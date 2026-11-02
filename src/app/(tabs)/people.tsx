@@ -19,7 +19,7 @@ const SWIPE_AT = 110;
 
 export default function People() {
   const { colors } = useTheme();
-  const tabSpace = useTabBarSpace();
+  const tabSpace = useTabBarSpace(8);
   const { profile: me } = useAuth();
   const { credits, openSheet } = useCredits();
   const [people, setPeople] = useState<Profile[]>([]);

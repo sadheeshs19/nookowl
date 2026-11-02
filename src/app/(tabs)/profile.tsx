@@ -20,7 +20,7 @@ import { useTheme, type ThemePreference } from '../../theme/ThemeProvider';
 
 export default function ProfileScreen() {
   const { colors, preference, setPreference } = useTheme();
-  const tabSpace = useTabBarSpace();
+  const tabSpace = useTabBarSpace(20);
   const { profile, refreshProfile, signOut } = useAuth();
   const { credits, openSheet } = useCredits();
   const [topics, setTopics] = useState<FeedTopic[]>([]);
