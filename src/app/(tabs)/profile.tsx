@@ -376,7 +376,7 @@ export default function ProfileScreen() {
           kind="secondary"
           title="Sign out"
           onPress={async () => {
-            await unregisterPush();
+            await Promise.race([unregisterPush(), new Promise((r) => setTimeout(r, 3000))]);
             await signOut();
           }}
           style={{ marginTop: 8 }}

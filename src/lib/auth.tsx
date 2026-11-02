@@ -86,7 +86,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearLinkError: () => setLinkError(null),
     refreshProfile: () => loadProfile(session),
     signOut: async () => {
-      await supabase.auth.signOut();
+      // Try to end the session on the server too, but never let a slow or failed
+      // request keep someone signed in on this device.
+      await Promise.race([
+        supabase.auth.signOut().catch(() => {}),
+        new Promise((r) => setTimeout(r, 4000)),
+      ]);
+      await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+      setSession(null);
       setProfile(null);
     },
   };
