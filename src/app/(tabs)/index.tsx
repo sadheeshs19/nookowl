@@ -184,6 +184,7 @@ export default function Topics() {
             onLike={() => toggleLike(item)}
             onComments={() => router.push({ pathname: '/topic/[id]', params: { id: item.id } })}
             onMessage={() => message(item)}
+            onOpenAuthor={() => router.push({ pathname: '/user/[id]', params: { id: item.user_id } })}
           />
         )}
         ListEmptyComponent={

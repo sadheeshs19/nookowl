@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Empty, T } from '../../components/ui';
@@ -80,7 +80,13 @@ export default function Requests() {
         renderItem={({ item }) => (
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Avatar name={item.from_profile?.username} path={item.from_profile?.avatar_path} size={48} />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`View ${item.from_profile?.username ?? 'their'} profile`}
+                  onPress={() => router.push({ pathname: '/user/[id]', params: { id: item.from_id } })}
+                >
+                  <Avatar name={item.from_profile?.username} path={item.from_profile?.avatar_path} size={48} />
+                </Pressable>
                 <View style={{ flex: 1, gap: 3 }}>
                   <T variant="label">{item.from_profile?.username ?? 'Someone'}</T>
                   <T variant="small" muted>

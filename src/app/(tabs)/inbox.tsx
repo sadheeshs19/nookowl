@@ -95,12 +95,16 @@ export default function Inbox() {
                   onPress={() => router.push({ pathname: '/chat/[id]', params: { id: h.conversation_id } })}
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}
                 >
-                  <View>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`View ${h.username}’s profile`}
+                    onPress={() => router.push({ pathname: '/user/[id]', params: { id: h.from_id } })}
+                  >
                     <Avatar name={h.username} path={h.avatar_path} size={44} />
                     <View style={{ position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.noticeBg }}>
                       <Icon name="owl" size={13} color={colors.onAccent} />
                     </View>
-                  </View>
+                  </Pressable>
                   <View style={{ flex: 1, gap: 2 }}>
                     <T variant="label" style={{ color: colors.noticeFg }}>{h.username} hooted at you</T>
                     <T variant="small" style={{ color: colors.noticeFg }}>
@@ -148,7 +152,13 @@ export default function Inbox() {
                 borderBottomWidth: 1, borderBottomColor: colors.border, opacity: pressed ? 0.7 : 1,
               })}
             >
-              <Avatar name={item.other.username} path={item.other.avatar_path} size={48} />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`View ${item.other.username}’s profile`}
+                onPress={() => router.push({ pathname: '/user/[id]', params: { id: item.other.id } })}
+              >
+                <Avatar name={item.other.username} path={item.other.avatar_path} size={48} />
+              </Pressable>
               <View style={{ flex: 1, gap: 3 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
                   <T variant="label">{item.other.username}</T>

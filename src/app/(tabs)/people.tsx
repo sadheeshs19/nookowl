@@ -171,10 +171,17 @@ export default function People() {
                   <Image source={{ uri: profileImageUrl(current.cover_path)! }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
                 ) : null}
               </View>
-              <View style={{ marginTop: -64, padding: 4, borderRadius: 60, backgroundColor: colors.card }}>
-                <Avatar name={current.username} path={current.avatar_path} size={104} />
-              </View>
-              <T variant="heading">{current.username}</T>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`View ${current.username}’s full profile`}
+                onPress={() => router.push({ pathname: '/user/[id]', params: { id: current.id } })}
+                style={{ alignItems: 'center', gap: 12 }}
+              >
+                <View style={{ marginTop: -64, padding: 4, borderRadius: 60, backgroundColor: colors.card }}>
+                  <Avatar name={current.username} path={current.avatar_path} size={104} />
+                </View>
+                <T variant="heading">{current.username}</T>
+              </Pressable>
               <T variant="small" muted>{[genderLabel(current.gender), current.city, 'open for calls'].filter(Boolean).join(' · ')}</T>
               {current.bio ? <T style={{ textAlign: 'center' }}>{current.bio}</T> : null}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>

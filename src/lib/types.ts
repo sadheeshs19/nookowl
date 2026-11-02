@@ -13,6 +13,8 @@ export type Profile = {
   who_can_call: import('./gender').WhoCanCall;
   /** Show a Chat button on my card in People. */
   allow_card_chats?: boolean;
+  /** Private: strangers only see nickname, photo and gender. */
+  is_private?: boolean;
   /** Suspended by a moderator. */
   banned?: boolean;
   created_at: string;
@@ -145,4 +147,15 @@ export type AdminReport = {
   comment_id: string | null;
   comment_body: string | null;
   call_id: string | null;
+};
+
+/** A profile as someone else sees it. */
+export type ProfileView = Profile & {
+  /** Private profile and you aren't chatting: only the basics are filled in. */
+  limited: boolean;
+  topic_count: number;
+  /** Their "Who can call me" lets you send call requests. */
+  can_call: boolean;
+  /** Your active chat with them, if any. */
+  conversation_id: string | null;
 };

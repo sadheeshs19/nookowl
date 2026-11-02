@@ -11,6 +11,7 @@ import type {
   HootState,
   Message,
   Profile,
+  ProfileView,
   TopicComment,
 } from './types';
 
@@ -27,12 +28,29 @@ function check<T>(res: { data: T; error: { message: string } | null }): T {
 }
 
 // ---------------------------------------------------------------- profiles
+/** My own full profile, or someone else's profile with their privacy rules applied. */
 export async function getProfile(id: string): Promise<Profile | null> {
-  return check(await supabase.from('profiles').select('*').eq('id', id).maybeSingle()) as Profile | null;
+  const { data } = await supabase.auth.getSession();
+  if (data.session?.user.id === id) {
+    const rows = check(await supabase.rpc('get_my_profile')) as Profile[];
+    return rows[0] ?? null;
+  }
+  return getProfileView(id);
 }
 
-export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call'>) {
-  check(await supabase.from('profiles').upsert(p));
+/** Someone's profile page. `limited` means it's private and you only see the basics. */
+export async function getProfileView(id: string): Promise<ProfileView | null> {
+  const rows = check(await supabase.rpc('get_profile_view', { target: id })) as ProfileView[];
+  return rows[0] ?? null;
+}
+
+export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call' | 'is_private'>) {
+  check(await supabase.from('profiles').insert(p));
+}
+
+export async function setPrivateProfile(is_private: boolean) {
+  const id = await me();
+  check(await supabase.from('profiles').update({ is_private }).eq('id', id));
 }
 
 /** Saves a new profile picture or cover image (or removes it with null). */

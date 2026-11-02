@@ -12,23 +12,33 @@ export function TopicCard({
   onLike,
   onComments,
   onMessage,
+  onOpenAuthor,
 }: {
   topic: FeedTopic;
   isMine: boolean;
   onLike: () => void;
   onComments: () => void;
   onMessage: () => void;
+  onOpenAuthor?: () => void;
 }) {
   const { colors } = useTheme();
   const meta = [topic.city, topic.languages.slice(0, 2).join(', ')].filter(Boolean).join(' · ');
   return (
     <Card>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <Avatar name={topic.username} path={topic.avatar_path} />
-        <View style={{ flex: 1, gap: 2 }}>
-          <T variant="label">{topic.username}</T>
-          {meta ? <T variant="small" muted numberOfLines={1}>{meta}</T> : null}
-        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`View ${topic.username}’s profile`}
+          disabled={!onOpenAuthor}
+          onPress={onOpenAuthor}
+          style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 }}
+        >
+          <Avatar name={topic.username} path={topic.avatar_path} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <T variant="label">{topic.username}</T>
+            {meta ? <T variant="small" muted numberOfLines={1}>{meta}</T> : null}
+          </View>
+        </Pressable>
         <T variant="small" muted>{timeAgo(topic.created_at)}</T>
       </View>
 

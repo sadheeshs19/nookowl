@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, V
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Chip, Empty, Segmented, T } from '../../components/ui';
-import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setAllowCardChats, setGender, setOpenToCalls, setProfileImage, setWhoCanCall } from '../../lib/api';
+import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setAllowCardChats, setGender, setPrivateProfile, setOpenToCalls, setProfileImage, setWhoCanCall } from '../../lib/api';
 import { GENDERS, WHO_CAN_CALL, genderLabel, type Gender, type WhoCanCall } from '../../lib/gender';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
@@ -115,6 +115,15 @@ export default function ProfileScreen() {
   const changeCardChats = async (v: boolean) => {
     try {
       await setAllowCardChats(v);
+      await refreshProfile();
+    } catch (e) {
+      Alert.alert('Could not update', e instanceof Error ? e.message : '');
+    }
+  };
+
+  const changePrivate = async (v: boolean) => {
+    try {
+      await setPrivateProfile(v);
       await refreshProfile();
     } catch (e) {
       Alert.alert('Could not update', e instanceof Error ? e.message : '');
@@ -265,6 +274,22 @@ export default function ProfileScreen() {
               accessibilityLabel="Chat button on my card"
               value={profile.allow_card_chats !== false}
               onValueChange={changeCardChats}
+              trackColor={{ true: colors.online }}
+            />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <T variant="label">Private profile</T>
+              <T variant="small" muted>
+                {profile.is_private
+                  ? 'On: strangers only see your nickname, photo and gender. People you chat with see everything.'
+                  : 'Off: anyone can see your full profile and topics.'}
+              </T>
+            </View>
+            <Switch
+              accessibilityLabel="Private profile"
+              value={!!profile.is_private}
+              onValueChange={changePrivate}
               trackColor={{ true: colors.online }}
             />
           </View>

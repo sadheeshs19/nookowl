@@ -175,13 +175,21 @@ export default function Chat() {
         <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="back" color={colors.text} />
         </Pressable>
-        <Avatar name={other?.username} path={other?.avatar_path} />
-        <View style={{ flex: 1 }}>
-          <T variant="label">{other?.username ?? ' '}</T>
-          {other?.city || hootCount || genderLabel(other?.gender) ? (
-            <T variant="small" muted>{[genderLabel(other?.gender), other?.city, hootCount ? `${hootCount} ${hootCount === 1 ? 'hoot' : 'hoots'}` : null].filter(Boolean).join(' · ')}</T>
-          ) : null}
-        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`View ${other?.username ?? ''}’s profile`}
+          disabled={!other}
+          onPress={() => other && router.push({ pathname: '/user/[id]', params: { id: other.id } })}
+          style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+        >
+          <Avatar name={other?.username} path={other?.avatar_path} />
+          <View style={{ flex: 1 }}>
+            <T variant="label">{other?.username ?? ' '}</T>
+            {other?.city || hootCount || genderLabel(other?.gender) ? (
+              <T variant="small" muted>{[genderLabel(other?.gender), other?.city, hootCount ? `${hootCount} ${hootCount === 1 ? 'hoot' : 'hoots'}` : null].filter(Boolean).join(' · ')}</T>
+            ) : null}
+          </View>
+        </Pressable>
         {canCall && other ? <HootButton otherId={other.id} otherName={other.username} onState={onHootState} /> : null}
         {canCall ? (
           <Pressable
