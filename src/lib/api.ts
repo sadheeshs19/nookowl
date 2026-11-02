@@ -31,7 +31,7 @@ export async function getProfile(id: string): Promise<Profile | null> {
   return check(await supabase.from('profiles').select('*').eq('id', id).maybeSingle()) as Profile | null;
 }
 
-export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call'>) {
+export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call' | 'allow_card_chats'>) {
   check(await supabase.from('profiles').upsert(p));
 }
 
@@ -44,6 +44,11 @@ export async function setProfileImage(kind: 'avatar' | 'cover', path: string | n
 export async function setGender(gender: Profile['gender']) {
   const id = await me();
   check(await supabase.from('profiles').update({ gender }).eq('id', id));
+}
+
+export async function setAllowCardChats(allow_card_chats: boolean) {
+  const id = await me();
+  check(await supabase.from('profiles').update({ allow_card_chats }).eq('id', id));
 }
 
 export async function setWhoCanCall(who_can_call: Profile['who_can_call']) {

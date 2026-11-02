@@ -4,7 +4,7 @@ import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, V
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Chip, Empty, Segmented, T } from '../../components/ui';
-import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setGender, setOpenToCalls, setProfileImage, setWhoCanCall } from '../../lib/api';
+import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setAllowCardChats, setGender, setOpenToCalls, setProfileImage, setWhoCanCall } from '../../lib/api';
 import { GENDERS, WHO_CAN_CALL, genderLabel, type Gender, type WhoCanCall } from '../../lib/gender';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
@@ -106,6 +106,15 @@ export default function ProfileScreen() {
   const changeWhoCanCall = async (w: WhoCanCall) => {
     try {
       await setWhoCanCall(w);
+      await refreshProfile();
+    } catch (e) {
+      Alert.alert('Could not update', e instanceof Error ? e.message : '');
+    }
+  };
+
+  const changeCardChats = async (v: boolean) => {
+    try {
+      await setAllowCardChats(v);
       await refreshProfile();
     } catch (e) {
       Alert.alert('Could not update', e instanceof Error ? e.message : '');
@@ -242,6 +251,22 @@ export default function ProfileScreen() {
               options={WHO_CAN_CALL.map((w) => ({ key: w.key, label: w.label }))}
             />
             <T variant="small" muted>{WHO_CAN_CALL.find((w) => w.key === (profile.who_can_call ?? 'everyone'))?.hint}</T>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <T variant="label">Chat button on my card</T>
+              <T variant="small" muted>
+                {profile.allow_card_chats === false
+                  ? 'Off: people in People can only send you a call request.'
+                  : 'On: people in People can message you directly.'}
+              </T>
+            </View>
+            <Switch
+              accessibilityLabel="Chat button on my card"
+              value={profile.allow_card_chats !== false}
+              onValueChange={changeCardChats}
+              trackColor={{ true: colors.online }}
+            />
           </View>
         </View>
 

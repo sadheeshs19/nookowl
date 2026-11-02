@@ -199,7 +199,7 @@ export default function People() {
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', gap: 28, paddingVertical: 14 }}>
           <RoundButton label="Pass" icon="close" onPress={() => advance(-1)} />
           <RoundButton label="Call request" icon="phone" big onPress={() => advance(1)} />
-          <RoundButton label="Chat" icon="message" onPress={chat} />
+          {current.allow_card_chats !== false ? <RoundButton label="Chat" icon="message" onPress={chat} /> : null}
         </View>
       ) : null}
     </SafeAreaView>

@@ -11,6 +11,8 @@ export type Profile = {
   cover_path: string | null;
   gender: import('./gender').Gender | null;
   who_can_call: import('./gender').WhoCanCall;
+  /** Show a Chat button on my card in People. */
+  allow_card_chats?: boolean;
   /** Suspended by a moderator. */
   banned?: boolean;
   created_at: string;
