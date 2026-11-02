@@ -214,7 +214,7 @@ export default function ProfileScreen() {
           <Icon name="phone" size={22} color={colors.accentText} />
           <View style={{ flex: 1, gap: 2 }}>
             <T variant="label">{credits ? `${Math.floor(credits.total_seconds / 60)} call minutes` : 'Call minutes'}</T>
-            <T variant="small" muted>30 free every day · watch an ad for more</T>
+            <T variant="small" muted>15 free every day · watch an ad for more</T>
           </View>
           <T variant="label" style={{ color: colors.accentText }}>Get more</T>
         </Pressable>

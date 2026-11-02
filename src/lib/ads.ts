@@ -40,3 +40,27 @@ export async function showAdPrivacyOptions(): Promise<boolean> {
     return false;
   }
 }
+
+/** Full-screen ad shown after some calls. Test ads until your own IDs are set. */
+export function interstitialAdUnitId(): string {
+  const own =
+    Platform.OS === 'ios'
+      ? process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_IOS
+      : process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID;
+  if (__DEV__ || !own) return TestIds.INTERSTITIAL;
+  return own;
+}
+
+// Keep after-call ads rare: only after real conversations, at most every 15 minutes,
+// and never right after someone watched an ad for minutes.
+const AFTER_CALL_MIN_SECONDS = 120;
+const AD_GAP_MS = 15 * 60 * 1000;
+let lastFullScreenAdAt = 0;
+
+export function markFullScreenAdShown() {
+  lastFullScreenAdAt = Date.now();
+}
+
+export function shouldShowAfterCallAd(talkedSeconds: number): boolean {
+  return talkedSeconds >= AFTER_CALL_MIN_SECONDS && Date.now() - lastFullScreenAdAt >= AD_GAP_MS;
+}

@@ -1,5 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useInterstitialAd } from 'react-native-google-mobile-ads';
+import { interstitialAdUnitId, markFullScreenAdShown, shouldShowAfterCallAd } from '../../lib/ads';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon, type IconName } from '../../components/icons';
@@ -101,10 +103,40 @@ export default function CallScreen() {
     return () => clearTimeout(t);
   }, [call, me]);
 
+  // The clock stops when the call ends, so "You talked for" stays put.
   useEffect(() => {
+    if (phase === 'after') return;
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
-  }, []);
+  }, [phase]);
+
+  // After a real conversation, show one full-screen ad as the person leaves.
+  const talkedSeconds = agora.connectedAt ? (now - agora.connectedAt) / 1000 : 0;
+  const [adEligible, setAdEligible] = useState<boolean | null>(null);
+  useEffect(() => {
+    // Decided once, when the call ends.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (phase === 'after' && adEligible === null) setAdEligible(shouldShowAfterCallAd(talkedSeconds));
+  }, [phase, adEligible, talkedSeconds]);
+  const afterAd = useInterstitialAd({ adUnitId: interstitialAdUnitId(), autoLoad: phase === 'after' && adEligible === true });
+  const pendingLeave = useRef<null | (() => void)>(null);
+  useEffect(() => {
+    if (!pendingLeave.current) return;
+    if (afterAd.status === 'closed' || afterAd.status === 'error' || afterAd.status === 'no-fill') {
+      const go = pendingLeave.current;
+      pendingLeave.current = null;
+      go();
+    }
+  }, [afterAd.status]);
+  const leave = (go: () => void) => {
+    if (adEligible && afterAd.status === 'loaded') {
+      pendingLeave.current = go;
+      markFullScreenAdShown();
+      afterAd.show();
+    } else {
+      go();
+    }
+  };
 
   const hangUp = async () => {
     if (!call) return router.back();
@@ -161,13 +193,13 @@ export default function CallScreen() {
               if (!other) return;
               try {
                 const conv = await activateConversationWith(other.id);
-                router.replace({ pathname: '/chat/[id]', params: { id: conv.id } });
+                leave(() => router.replace({ pathname: '/chat/[id]', params: { id: conv.id } }));
               } catch (e) {
                 Alert.alert('Could not save', e instanceof Error ? e.message : '');
               }
             }}
           />
-          <Button kind="secondary" title="No thanks" onPress={() => router.replace('/(tabs)')} />
+          <Button kind="secondary" title="No thanks" onPress={() => leave(() => router.replace('/(tabs)'))} />
           <Button
             kind="ghost"
             title="Report this call"

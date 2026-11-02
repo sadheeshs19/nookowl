@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { useRewardedAd } from 'react-native-google-mobile-ads';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { rewardedAdUnitId } from '../lib/ads';
+import { markFullScreenAdShown, rewardedAdUnitId } from '../lib/ads';
 import { claimAdReward } from '../lib/api';
 import type { Credits } from '../lib/types';
 import { fonts } from '../theme/colors';
@@ -32,6 +32,7 @@ export function CreditsSheet({
   useEffect(() => {
     if (!ad.earnedReward || claimedForShow.current) return;
     claimedForShow.current = true;
+    markFullScreenAdShown();
     claimAdReward()
       .then((c) => {
         onCredits(c);
@@ -86,7 +87,7 @@ export function CreditsSheet({
         <View style={{ gap: 6, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
           <T variant="label">How minutes work</T>
           <T variant="small" muted>Only the person who calls uses minutes. Answering is always free.</T>
-          <T variant="small" muted>You get 30 free minutes every day. Minutes from ads never expire.</T>
+          <T variant="small" muted>You get 15 free minutes every day. Minutes from ads never expire.</T>
         </View>
 
         <Button
