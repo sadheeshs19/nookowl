@@ -48,9 +48,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isConfigured) return;
 
+    // Load the profile first and only then publish the new session, so screens never
+    // see "signed in but no profile" for a moment and send people to profile setup.
+    // (Deferred with setTimeout: Supabase calls made inside this callback can stall.)
+    let latest = 0;
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
-      loadProfile(s);
+      const run = ++latest;
+      setTimeout(async () => {
+        if (!s) {
+          if (run !== latest) return;
+          setProfile(null);
+          setSession(null);
+          return;
+        }
+        try {
+          const p = await getProfile(s.user.id);
+          if (run !== latest) return;
+          setProfile(p);
+        } catch {
+          // Network hiccup: keep the profile we already have for this person.
+          if (run !== latest) return;
+          setProfile((prev) => (prev?.id === s.user.id ? prev : null));
+        }
+        setSession(s);
+      }, 0);
     });
 
     const handleUrl = async (url: string | null) => {
