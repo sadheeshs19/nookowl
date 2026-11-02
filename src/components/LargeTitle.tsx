@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Animated, View } from 'react-native';
 import { fonts } from '../theme/colors';
 import { useTheme } from '../theme/ThemeProvider';
@@ -16,7 +16,18 @@ export function useCollapsingTitle() {
 }
 
 /** The small title bar. Place it last inside the screen's SafeAreaView. */
-export function CompactTitleBar({ title, scrollY, showAfter = 44 }: { title: string; scrollY: Animated.Value; showAfter?: number }) {
+export function CompactTitleBar({
+  title,
+  scrollY,
+  showAfter = 44,
+  children,
+}: {
+  title: string;
+  scrollY: Animated.Value;
+  showAfter?: number;
+  /** Shown instead of the title text (e.g. the logo). */
+  children?: ReactNode;
+}) {
   const { colors, isDark } = useTheme();
   const opacity = scrollY.interpolate({ inputRange: [showAfter - 12, showAfter + 8], outputRange: [0, 1], extrapolate: 'clamp' });
   const lift = scrollY.interpolate({ inputRange: [showAfter - 12, showAfter + 8], outputRange: [6, 0], extrapolate: 'clamp' });
@@ -30,7 +41,11 @@ export function CompactTitleBar({ title, scrollY, showAfter = 44 }: { title: str
         opacity,
       }}
     >
-      <Animated.Text style={{ fontFamily: fonts.bodySemi, fontSize: 17, color: colors.text, transform: [{ translateY: lift }] }}>{title}</Animated.Text>
+      {children ? (
+        <Animated.View accessibilityLabel={title} style={{ transform: [{ translateY: lift }] }}>{children}</Animated.View>
+      ) : (
+        <Animated.Text style={{ fontFamily: fonts.bodySemi, fontSize: 17, color: colors.text, transform: [{ translateY: lift }] }}>{title}</Animated.Text>
+      )}
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 0.5, backgroundColor: colors.border2 }} />
     </Animated.View>
   );

@@ -213,7 +213,9 @@ export default function Topics() {
         }
       />
       <OwlPull scrollY={scrollY} refreshing={refreshing} />
-      <CompactTitleBar title="Topics" scrollY={scrollY} showAfter={72} />
+      <CompactTitleBar title="Nooks" scrollY={scrollY} showAfter={40}>
+        <NestLogo size={28} />
+      </CompactTitleBar>
     </SafeAreaView>
   );
 }
