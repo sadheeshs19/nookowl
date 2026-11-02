@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LanguagePicker } from '../components/LanguagePicker';
-import { Button, Chip, Field, T } from '../components/ui';
+import { Button, Chip, Field, T, Toggle } from '../components/ui';
 import { isUsernameTaken, saveProfile } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { GENDERS, type Gender } from '../lib/gender';
@@ -113,7 +113,7 @@ export default function Onboarding() {
               <T variant="label">Show my age</T>
               <T variant="small" muted>Shows your age (like 27) on your profile. You can hide it anytime.</T>
             </View>
-            <Switch accessibilityLabel="Show my age" value={showAge} onValueChange={setShowAge} trackColor={{ true: colors.online }} />
+            <Toggle accessibilityLabel="Show my age" value={showAge} onValueChange={setShowAge} />
           </View>
           <View style={{ gap: 10 }}>
             <T variant="label">Gender</T>
@@ -138,20 +138,20 @@ export default function Onboarding() {
             </View>
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.card }}>
             <View style={{ flex: 1, gap: 2 }}>
               <T variant="label">Open to calls</T>
               <T variant="small" muted>Show me in People so others can send me call requests. You can change this anytime.</T>
             </View>
-            <Switch accessibilityLabel="Open to calls" value={openToCalls} onValueChange={setOpenToCalls} trackColor={{ true: colors.online }} />
+            <Toggle accessibilityLabel="Open to calls" value={openToCalls} onValueChange={setOpenToCalls} />
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.card }}>
             <View style={{ flex: 1, gap: 2 }}>
               <T variant="label">Chat button on my card</T>
               <T variant="small" muted>Let people in People message you directly. Turn off to get call requests only. You can change this anytime.</T>
             </View>
-            <Switch accessibilityLabel="Chat button on my card" value={cardChats} onValueChange={setCardChats} trackColor={{ true: colors.online }} />
+            <Toggle accessibilityLabel="Chat button on my card" value={cardChats} onValueChange={setCardChats} />
           </View>
 
           <Pressable

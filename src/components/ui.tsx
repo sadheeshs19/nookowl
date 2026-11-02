@@ -1,9 +1,12 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Image,
   Pressable,
   StyleSheet,
+  Switch,
+  type PressableProps,
   Text,
   TextInput,
   View,
@@ -16,6 +19,85 @@ import { fonts } from '../theme/colors';
 import { useTheme } from '../theme/ThemeProvider';
 import { initial } from '../lib/format';
 import { profileImageUrl } from '../lib/images';
+import { haptic } from '../lib/haptics';
+
+const OUTER_KEYS = new Set([
+  'flex', 'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'width', 'minWidth', 'maxWidth',
+  'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'marginHorizontal', 'marginVertical',
+  'position', 'top', 'bottom', 'left', 'right', 'zIndex',
+]);
+
+/**
+ * A Pressable that gently shrinks while pressed and springs back, like iOS controls.
+ * `feedback` adds a haptic on press ('tap' for buttons, 'select' for choices).
+ */
+export function PressableScale({
+  children,
+  style,
+  scaleTo = 0.96,
+  feedback,
+  onPress,
+  disabled,
+  ...rest
+}: Omit<PressableProps, 'style' | 'children'> & {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  scaleTo?: number;
+  feedback?: 'tap' | 'select' | 'swipe' | 'success';
+}) {
+  const [scale] = useState(() => new Animated.Value(1));
+  const to = (v: number) =>
+    Animated.spring(scale, { toValue: v, useNativeDriver: true, speed: 40, bounciness: v === 1 ? 8 : 0 }).start();
+  // Layout that positions the control (flex, margins, width…) belongs on the outer
+  // Pressable; the look (colours, padding, radius) goes on the part that scales.
+  const flat = (StyleSheet.flatten(style) ?? {}) as ViewStyle;
+  const outer: ViewStyle = {};
+  const inner: ViewStyle = {};
+  for (const [k, v] of Object.entries(flat)) {
+    if (OUTER_KEYS.has(k)) (outer as Record<string, unknown>)[k] = v;
+    else (inner as Record<string, unknown>)[k] = v;
+  }
+  if (outer.flex !== undefined || outer.width !== undefined || outer.alignSelf === 'stretch') (inner as Record<string, unknown>).flexGrow = 1;
+  return (
+    <Pressable
+      {...rest}
+      style={outer}
+      disabled={disabled}
+      onPressIn={(e) => {
+        to(scaleTo);
+        rest.onPressIn?.(e);
+      }}
+      onPressOut={(e) => {
+        to(1);
+        rest.onPressOut?.(e);
+      }}
+      onPress={(e) => {
+        if (feedback) haptic[feedback]();
+        onPress?.(e);
+      }}
+    >
+      <Animated.View style={[inner, { transform: [{ scale }] }]}>{children}</Animated.View>
+    </Pressable>
+  );
+}
+
+/** iOS-style switch in the app's accent colour, with a selection haptic. */
+export function Toggle({ value, onValueChange, accessibilityLabel }: { value: boolean; onValueChange: (v: boolean) => void; accessibilityLabel?: string }) {
+  const { colors } = useTheme();
+  return (
+    <Switch
+      accessibilityLabel={accessibilityLabel}
+      value={value}
+      onValueChange={(v) => {
+        haptic.select();
+        onValueChange(v);
+      }}
+      trackColor={{ true: colors.accent, false: colors.toggleOff }}
+      thumbColor="#FFFFFF"
+      ios_backgroundColor={colors.toggleOff}
+    />
+  );
+}
 
 export function T({
   children,
@@ -75,31 +157,30 @@ export function Button({
     kind === 'primary' ? colors.accent : kind === 'danger' ? colors.danger : 'transparent';
   const fg = kind === 'primary' || kind === 'danger' ? colors.onAccent : colors.text;
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? title}
       onPress={onPress}
+      feedback="tap"
       disabled={disabled || loading}
-      style={({ pressed }) => [
+      style={[
         {
-          minHeight: 48,
-          borderRadius: 14,
-          paddingHorizontal: 18,
+          minHeight: 50,
+          borderRadius: 25,
+          paddingHorizontal: 20,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
-          backgroundColor: bg,
-          borderWidth: kind === 'secondary' ? 1 : 0,
-          borderColor: colors.border2,
-          opacity: disabled ? 0.45 : pressed ? 0.8 : 1,
+          backgroundColor: kind === 'secondary' ? colors.fill : bg,
+          opacity: disabled ? 0.45 : 1,
         },
         style,
       ]}
     >
       {loading ? <ActivityIndicator color={fg} /> : icon}
-      {title ? <Text style={{ fontFamily: fonts.bodySemi, fontSize: 15, color: fg }}>{title}</Text> : null}
-    </Pressable>
+      {title ? <Text style={{ fontFamily: fonts.bodySemi, fontSize: 16, color: fg }}>{title}</Text> : null}
+    </PressableScale>
   );
 }
 
@@ -145,9 +226,8 @@ export function Field({ label, hint, ...props }: TextInputProps & { label: strin
           {
             minHeight: 48,
             borderRadius: 14,
-            borderWidth: 1,
-            borderColor: colors.border2,
-            backgroundColor: colors.surface,
+            borderWidth: 0,
+            backgroundColor: colors.card,
             paddingHorizontal: 14,
             fontFamily: fonts.body,
             fontSize: 16,
@@ -164,24 +244,24 @@ export function Field({ label, hint, ...props }: TextInputProps & { label: strin
 export function Chip({ label, selected, onPress }: { label: string; selected?: boolean; onPress?: () => void }) {
   const { colors } = useTheme();
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
+      feedback="select"
+      scaleTo={0.94}
       style={{
         minHeight: 36,
-        paddingHorizontal: 12,
+        paddingHorizontal: 14,
         borderRadius: 999,
         justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: selected ? colors.chipOnBg : colors.border2,
-        backgroundColor: selected ? colors.chipOnBg : 'transparent',
+        backgroundColor: selected ? colors.accent : colors.fill,
       }}
     >
-      <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: selected ? colors.chipOnFg : colors.text }}>
+      <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 14, color: selected ? colors.onAccent : colors.text }}>
         {label}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -190,7 +270,7 @@ export function Card({ children, style }: { children: ReactNode; style?: StylePr
   return (
     <View
       style={[
-        { borderWidth: 1, borderColor: colors.border, borderRadius: 20, padding: 16, gap: 12, backgroundColor: colors.card },
+        { borderRadius: 20, padding: 16, gap: 12, backgroundColor: colors.card },
         style,
       ]}
     >
@@ -222,7 +302,7 @@ export function Segmented<K extends string>({
   return (
     <View
       accessibilityRole="tablist"
-      style={{ flexDirection: 'row', gap: 4, padding: 4, borderRadius: 14, backgroundColor: colors.surface }}
+      style={{ flexDirection: 'row', gap: 2, padding: 3, borderRadius: 13, backgroundColor: colors.fill }}
     >
       {options.map((o) => {
         const on = o.key === value;
@@ -231,14 +311,22 @@ export function Segmented<K extends string>({
             key={o.key}
             accessibilityRole="tab"
             accessibilityState={{ selected: on }}
-            onPress={() => onChange(o.key)}
+            onPress={() => {
+              if (!on) haptic.select();
+              onChange(o.key);
+            }}
             style={{
               flex: 1,
-              minHeight: 40,
+              minHeight: 36,
               borderRadius: 10,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: on ? colors.card : 'transparent',
+              backgroundColor: on ? colors.segmentOn : 'transparent',
+              shadowColor: '#000',
+              shadowOpacity: on ? 0.12 : 0,
+              shadowRadius: 4,
+              shadowOffset: { width: 0, height: 1 },
+              elevation: on ? 1 : 0,
             }}
           >
             <Text style={{ fontFamily: fonts.bodySemi, fontSize: 14, color: on ? colors.text : colors.muted }}>

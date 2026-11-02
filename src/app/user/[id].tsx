@@ -138,7 +138,7 @@ export default function UserProfile() {
       {header}
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 16 }}>
         <View>
-          <View style={{ height: 150, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}>
+          <View style={{ height: 150, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.fill }}>
             {person.cover_path ? (
               <Image source={{ uri: profileImageUrl(person.cover_path)! }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
             ) : null}
@@ -158,7 +158,7 @@ export default function UserProfile() {
         </View>
 
         {person.limited ? (
-          <View style={{ flexDirection: 'row', gap: 10, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
+          <View style={{ flexDirection: 'row', gap: 10, padding: 14, borderRadius: 16, backgroundColor: colors.card }}>
             <Icon name="user" size={20} color={colors.muted} />
             <T variant="small" muted style={{ flex: 1 }}>
               This profile is private. You’ll see more once you two are chatting.
@@ -170,7 +170,7 @@ export default function UserProfile() {
             {person.interests.length ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {person.interests.map((tag) => (
-                  <View key={tag} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.surface }}>
+                  <View key={tag} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.card }}>
                     <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 13, color: colors.text }}>{tag}</Text>
                   </View>
                 ))}

@@ -236,7 +236,7 @@ export default function CallScreen() {
               .then(() => Alert.alert('Reported', 'Thanks. You can end the call at any time.'))
               .catch(() => {})
           }
-          style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border2, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.fill, flexDirection: 'row', alignItems: 'center', gap: 6 }}
         >
           <Icon name="flag" size={16} color={colors.muted} />
           <T variant="small" muted>Report</T>
@@ -264,7 +264,7 @@ export default function CallScreen() {
           accessibilityRole="button"
           accessibilityHint="Shows another conversation starter"
           onPress={() => setPrompt((p) => (p + 1) % PROMPTS.length)}
-          style={{ alignSelf: 'stretch', padding: 16, borderRadius: 18, backgroundColor: colors.callPanel, borderWidth: 1, borderColor: colors.border, gap: 6 }}
+          style={{ alignSelf: 'stretch', padding: 16, borderRadius: 18, backgroundColor: colors.callPanel, gap: 6 }}
         >
           <T variant="caps" muted>Stuck? Try asking</T>
           <T style={{ fontSize: 16 }}>{PROMPTS[prompt]}</T>

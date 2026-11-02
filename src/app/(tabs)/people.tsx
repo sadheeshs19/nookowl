@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { GenderAge } from '../../components/GenderAge';
-import { Avatar, Button, Empty, T } from '../../components/ui';
+import { Avatar, Button, Empty, T, PressableScale } from '../../components/ui';
 import { getOrStartConversation, getPeopleOpenToCalls, sendCallRequest } from '../../lib/api';
 import { CreditsPill } from '../../components/CreditsSheet';
 import { useAuth } from '../../lib/auth';
@@ -14,6 +14,7 @@ import { profileImageUrl } from '../../lib/images';
 import type { Profile } from '../../lib/types';
 import { fonts } from '../../theme/colors';
 import { useTheme } from '../../theme/ThemeProvider';
+import { haptic } from '../../lib/haptics';
 
 const SWIPE_AT = 110;
 
@@ -59,7 +60,8 @@ export default function People() {
   const advance = useCallback(
     (dir: 1 | -1) => {
       const person = people[index];
-      Animated.timing(x, { toValue: dir * 520, duration: 220, useNativeDriver: true }).start(() => {
+      haptic.swipe();
+      Animated.spring(x, { toValue: dir * 560, useNativeDriver: true, speed: 18, bounciness: 0, restDisplacementThreshold: 20, restSpeedThreshold: 20 }).start(() => {
         x.setValue(0);
         setIndex((i) => i + 1);
       });
@@ -69,8 +71,14 @@ export default function People() {
           return;
         }
         sendCallRequest(person.id)
-          .then(() => showToast(`Call request sent to ${person.username}. We’ll ring you if they accept.`))
-          .catch((e) => showToast(e instanceof Error ? e.message : 'Could not send the request.'));
+          .then(() => {
+            haptic.success();
+            showToast(`Call request sent to ${person.username}. We’ll ring you if they accept.`);
+          })
+          .catch((e) => {
+            haptic.warn();
+            showToast(e instanceof Error ? e.message : 'Could not send the request.');
+          });
       }
     },
     [credits, index, openSheet, people, x],
@@ -143,7 +151,7 @@ export default function People() {
               <View
                 style={{
                   position: 'absolute', left: 12, right: 12, top: 14, bottom: 0,
-                  borderRadius: 28, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card,
+                  borderRadius: 28, backgroundColor: colors.card,
                   opacity: 0.7, alignItems: 'center', paddingTop: 40,
                 }}
               >
@@ -157,8 +165,9 @@ export default function People() {
               accessibilityActions={[{ name: 'activate', label: 'Send call request' }]}
               style={{
                 position: 'absolute', left: 0, right: 0, top: 0, bottom: 14,
-                borderRadius: 28, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card,
+                borderRadius: 28, backgroundColor: colors.card,
                 padding: 22, paddingTop: 0, alignItems: 'center', gap: 12, overflow: 'hidden',
+                shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 3,
                 transform: [{ translateX: x }, { rotate }],
               }}
             >
@@ -236,19 +245,21 @@ function RoundButton({ label, icon, onPress, big, tint }: { label: string; icon:
   const size = big ? 72 : 60;
   return (
     <View style={{ alignItems: 'center', gap: 6 }}>
-      <Pressable
+      <PressableScale
         accessibilityRole="button"
         accessibilityLabel={label}
         onPress={onPress}
+        scaleTo={0.9}
         style={{
           width: size, height: size, borderRadius: size / 2,
           alignItems: 'center', justifyContent: 'center',
           backgroundColor: big ? colors.accent : colors.card,
-          borderWidth: big ? 0 : 1, borderColor: colors.border2,
+          shadowColor: big ? colors.accent : '#000', shadowOpacity: big ? 0.35 : 0.08, shadowRadius: big ? 14 : 10,
+          shadowOffset: { width: 0, height: 6 }, elevation: big ? 6 : 2,
         }}
       >
         <Icon name={icon} size={big ? 28 : 24} color={big ? colors.onAccent : tint ?? colors.text} />
-      </Pressable>
+      </PressableScale>
       <T variant="small" muted>{label}</T>
     </View>
   );

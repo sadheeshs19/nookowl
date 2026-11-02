@@ -124,9 +124,7 @@ export function CreditsPill({ seconds, onPress }: { seconds: number | null | und
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        backgroundColor: low ? colors.warnBg : colors.surface,
-        borderWidth: 1,
-        borderColor: low ? colors.warnBg : colors.border,
+        backgroundColor: low ? colors.warnBg : colors.fill,
       }}
     >
       <Icon name="phone" size={15} color={low ? colors.warnFg : colors.text} />

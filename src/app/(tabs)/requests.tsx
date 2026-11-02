@@ -1,10 +1,12 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
+import { Animated, ActivityIndicator, Alert, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Empty, T } from '../../components/ui';
+import { haptic } from '../../lib/haptics';
 import { acceptCallRequest, declineCallRequest, getCallRequests } from '../../lib/api';
 import { minutesLeft, timeAgo } from '../../lib/format';
 import type { CallRequest } from '../../lib/types';
@@ -13,6 +15,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Requests() {
   const { colors } = useTheme();
+  const { scrollY, onScroll } = useCollapsingTitle();
   const tabSpace = useTabBarSpace(20);
   // Only requests sent to me are shown; requests I've sent stay private.
   const [list, setList] = useState<CallRequest[]>([]);
@@ -43,6 +46,7 @@ export default function Requests() {
     try {
       // Rings the person who asked; the call starts when they pick up.
       const call = await acceptCallRequest(r);
+      haptic.success();
       router.push({ pathname: '/call/[id]', params: { id: call.id, name: r.from_profile?.username ?? '' } });
     } catch (e) {
       const msg = e instanceof Error ? e.message : '';
@@ -69,16 +73,20 @@ export default function Requests() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ paddingHorizontal: 20, paddingTop: 8, gap: 14 }}>
-        <T variant="title">Call requests</T>
-        <T variant="small" muted>
-          People who want to talk with you. Requests expire after 15 minutes. When you accept, we ring them, and the call is free for you.
-        </T>
-      </View>
-      <FlatList
+      <Animated.FlatList
         data={list}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        ListHeaderComponent={
+          <View style={{ paddingTop: 0, gap: 8, marginBottom: 4 }}>
+            <T variant="title">Call requests</T>
+            <T variant="small" muted>
+              People who want to talk with you. Requests expire after 15 minutes. When you accept, we ring them, and the call is free for you.
+            </T>
+          </View>
+        }
         keyExtractor={(r) => r.id}
-        contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: tabSpace }}
+        contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 12, paddingBottom: tabSpace }}
         renderItem={({ item }) => (
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -125,6 +133,7 @@ export default function Requests() {
           )
         }
       />
+      <CompactTitleBar title="Call requests" scrollY={scrollY} />
     </SafeAreaView>
   );
 }

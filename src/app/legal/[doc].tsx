@@ -37,7 +37,7 @@ export default function LegalScreen() {
             ))}
           </View>
         ))}
-        <View style={{ gap: 6, padding: 14, borderRadius: 16, backgroundColor: colors.surface }}>
+        <View style={{ gap: 6, padding: 14, borderRadius: 16, backgroundColor: colors.card }}>
           <T variant="label">Contact</T>
           <Pressable accessibilityRole="link" onPress={() => Linking.openURL(`mailto:${legal.supportEmail}`).catch(() => {})}>
             <T selectable style={{ color: colors.accentText }}>{legal.supportEmail}</T>

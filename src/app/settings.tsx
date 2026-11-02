@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Switch, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Group, Row, TILE } from '../components/Grouped';
 import { Icon } from '../components/icons';
-import { Button, Chip, Segmented, T } from '../components/ui';
+import { Chip, Segmented, T, Toggle } from '../components/ui';
 import { deleteMyAccount, setAllowCardChats, setGender, setPrivateProfile, setShowAge, setWhoCanCall } from '../lib/api';
 import { GENDERS, WHO_CAN_CALL, type Gender, type WhoCanCall } from '../lib/gender';
 import { useAuth } from '../lib/auth';
@@ -87,141 +88,124 @@ export default function SettingsScreen() {
 
   if (!profile) return null;
 
+  const age = new Date().getFullYear() - profile.birth_year;
+  const who = profile.who_can_call ?? 'everyone';
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4 }}>
         <Pressable accessibilityRole="button" accessibilityLabel="Back" onPress={() => router.back()} style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="back" color={colors.text} />
+          <Icon name="back" color={colors.accentText} />
         </Pressable>
-        <T variant="heading">Settings</T>
       </View>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 16, paddingBottom: 40 }}>
-        <T variant="caps" muted>Profile and privacy</T>
-        <View style={{ gap: 12, padding: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border }}>
-          <View style={{ gap: 8 }}>
-            <T variant="label">Gender</T>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {GENDERS.map((g) => (
-                <Chip key={g.key} label={g.label} selected={profile.gender === g.key} onPress={() => changeGender(g.key)} />
-              ))}
-            </View>
-          </View>
-          <View style={{ gap: 8 }}>
-            <T variant="label">Who can call me</T>
-            <Segmented<WhoCanCall>
-              value={profile.who_can_call ?? 'everyone'}
-              onChange={changeWhoCanCall}
-              options={WHO_CAN_CALL.map((w) => ({ key: w.key, label: w.label }))}
-            />
-            <T variant="small" muted>{WHO_CAN_CALL.find((w) => w.key === (profile.who_can_call ?? 'everyone'))?.hint}</T>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ flex: 1, gap: 2 }}>
-              <T variant="label">Chat button on my card</T>
-              <T variant="small" muted>
-                {profile.allow_card_chats === false
-                  ? 'Off: people in People can only send you a call request.'
-                  : 'On: people in People can message you directly.'}
-              </T>
-            </View>
-            <Switch
-              accessibilityLabel="Chat button on my card"
-              value={profile.allow_card_chats !== false}
-              onValueChange={changeCardChats}
-              trackColor={{ true: colors.online }}
-            />
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ flex: 1, gap: 2 }}>
-              <T variant="label">Show my age</T>
-              <T variant="small" muted>
-                {profile.show_age === false ? 'Hidden. Your birth year is never shown.' : `Others see you as ${new Date().getFullYear() - profile.birth_year}. Your birth year is never shown.`}
-              </T>
-            </View>
-            <Switch accessibilityLabel="Show my age" value={profile.show_age !== false} onValueChange={changeShowAge} trackColor={{ true: colors.online }} />
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ flex: 1, gap: 2 }}>
-              <T variant="label">Private profile</T>
-              <T variant="small" muted>
-                {profile.is_private
-                  ? 'On: strangers only see your nickname, photo and gender. People you chat with see everything.'
-                  : 'Off: anyone can see your full profile and topics.'}
-              </T>
-            </View>
-            <Switch
-              accessibilityLabel="Private profile"
-              value={!!profile.is_private}
-              onValueChange={changePrivate}
-              trackColor={{ true: colors.online }}
-            />
-          </View>
-        </View>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 48, gap: 26 }}>
+        <T variant="title" style={{ marginLeft: 4 }}>Settings</T>
 
-        <T variant="caps" muted>Appearance</T>
-        <Segmented<ThemePreference>
-          value={preference}
-          onChange={setPreference}
-          options={[
-            { key: 'system', label: 'System' },
-            { key: 'light', label: 'Light' },
-            { key: 'dark', label: 'Dark' },
-          ]}
-        />
+        <Group title="Calls" footer={WHO_CAN_CALL.find((w) => w.key === who)?.hint}>
+          <Row
+            icon="phone"
+            tint={TILE.green}
+            title="Who can call me"
+            below={
+              <Segmented<WhoCanCall>
+                value={who}
+                onChange={changeWhoCanCall}
+                options={WHO_CAN_CALL.map((w) => ({ key: w.key, label: w.label }))}
+              />
+            }
+          />
+          <Row
+            icon="message"
+            tint={TILE.blue}
+            title="Chat button on my card"
+            subtitle={profile.allow_card_chats === false ? 'People can only send you call requests' : 'People can message you from People'}
+            right={<Toggle accessibilityLabel="Chat button on my card" value={profile.allow_card_chats !== false} onValueChange={changeCardChats} />}
+          />
+        </Group>
 
-        <T variant="caps" muted>Help and account</T>
-        <View style={{ borderRadius: 18, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' }}>
-          {(
-            [
-              ['Terms of Use', 'terms'],
-              ['Privacy Policy', 'privacy'],
-              ['Support and contact', 'support'],
-            ] as const
-          ).map(([label, doc], i) => (
-            <Pressable
-              key={doc}
-              accessibilityRole="button"
-              onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc } })}
-              style={({ pressed }) => ({
-                flexDirection: 'row', alignItems: 'center', minHeight: 50, paddingHorizontal: 14,
-                borderTopWidth: i ? 1 : 0, borderTopColor: colors.border, opacity: pressed ? 0.7 : 1,
-              })}
-            >
-              <T style={{ flex: 1 }}>{label}</T>
-              <View style={{ transform: [{ rotate: '180deg' }] }}>
-                <Icon name="back" size={18} color={colors.muted} />
+        <Group title="Profile" footer="Your birth year is never shown. Private profiles show strangers only your nickname, photo and gender; people you chat with see everything.">
+          <Row
+            icon="user"
+            tint={TILE.pink}
+            title="Gender"
+            below={
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {GENDERS.map((g) => (
+                  <Chip key={g.key} label={g.label} selected={profile.gender === g.key} onPress={() => changeGender(g.key)} />
+                ))}
               </View>
-            </Pressable>
-          ))}
-          <Pressable
-            accessibilityRole="button"
+            }
+          />
+          <Row
+            icon="cake"
+            tint={TILE.orange}
+            title="Show my age"
+            subtitle={profile.show_age === false ? 'Hidden' : `Shown as ${age}`}
+            right={<Toggle accessibilityLabel="Show my age" value={profile.show_age !== false} onValueChange={changeShowAge} />}
+          />
+          <Row
+            icon="lock"
+            tint={TILE.indigo}
+            title="Private profile"
+            right={<Toggle accessibilityLabel="Private profile" value={!!profile.is_private} onValueChange={changePrivate} />}
+          />
+          <Row icon="card" tint={TILE.teal} title="Edit bio, city and languages" onPress={() => router.push('/edit-profile')} />
+        </Group>
+
+        <Group title="Appearance">
+          <Row
+            icon="moon"
+            tint={TILE.purple}
+            title="Theme"
+            below={
+              <Segmented<ThemePreference>
+                value={preference}
+                onChange={setPreference}
+                options={[
+                  { key: 'system', label: 'System' },
+                  { key: 'light', label: 'Light' },
+                  { key: 'dark', label: 'Dark' },
+                ]}
+              />
+            }
+          />
+        </Group>
+
+        <Group title="Help">
+          <Row icon="doc" tint={TILE.grey} title="Terms of Use" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'terms' } })} />
+          <Row icon="shield" tint={TILE.blue} title="Privacy Policy" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'privacy' } })} />
+          <Row icon="help" tint={TILE.green} title="Support and contact" onPress={() => router.push({ pathname: '/legal/[doc]', params: { doc: 'support' } })} />
+          <Row
+            icon="settings"
+            tint={TILE.grey}
+            title="Ad choices"
             onPress={async () => {
               if (!(await showAdPrivacyOptions())) {
                 Alert.alert('Ad choices', 'There are no ad choices to change in your region. On iPhone you can also turn off tracking in Settings → Privacy & Security → Tracking.');
               }
             }}
-            style={({ pressed }) => ({
-              flexDirection: 'row', alignItems: 'center', minHeight: 50, paddingHorizontal: 14,
-              borderTopWidth: 1, borderTopColor: colors.border, opacity: pressed ? 0.7 : 1,
-            })}
-          >
-            <T style={{ flex: 1 }}>Ad choices</T>
-            <View style={{ transform: [{ rotate: '180deg' }] }}>
-              <Icon name="back" size={18} color={colors.muted} />
-            </View>
-          </Pressable>
-        </View>
+          />
+        </Group>
 
-        <Button
-          kind="secondary"
-          title="Sign out"
-          onPress={async () => {
-            await Promise.race([unregisterPush(), new Promise((r) => setTimeout(r, 3000))]);
-            await signOut();
-          }}
-          style={{ marginTop: 8 }}
-        />
-        <Button kind="ghost" title="Delete account" loading={deleting} onPress={confirmDeleteAccount} style={{ marginBottom: 8 }} />
+        <Group>
+          <Row
+            icon="logout"
+            tint={TILE.grey}
+            title="Sign out"
+            onPress={async () => {
+              await Promise.race([unregisterPush(), new Promise((r) => setTimeout(r, 3000))]);
+              await signOut();
+            }}
+          />
+          <Row
+            icon="trash"
+            tint={TILE.red}
+            title="Delete account"
+            destructive
+            right={deleting ? <ActivityIndicator color={colors.danger} /> : undefined}
+            onPress={deleting ? undefined : confirmDeleteAccount}
+          />
+        </Group>
       </ScrollView>
     </SafeAreaView>
   );

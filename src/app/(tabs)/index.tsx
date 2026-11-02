@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, Text, TextInput, View } from 'react-native';
+import { Animated, ActivityIndicator, Alert, Pressable, RefreshControl, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { TopicCard } from '../../components/TopicCard';
@@ -16,6 +17,7 @@ const DEFAULT_TAGS = ['LanguageExchange', 'CantSleep', 'Cricket', 'Careers', 'Ru
 
 export default function Topics() {
   const { colors } = useTheme();
+  const { scrollY, onScroll } = useCollapsingTitle();
   const tabSpace = useTabBarSpace(20);
   const { session } = useAuth();
   const me = session?.user.id;
@@ -99,9 +101,7 @@ export default function Topics() {
           style={{
             height: 48,
             borderRadius: 14,
-            borderWidth: 1,
-            borderColor: colors.border2,
-            backgroundColor: colors.surface,
+            backgroundColor: colors.card,
             paddingLeft: 44,
             paddingRight: 44,
             fontFamily: fonts.body,
@@ -137,9 +137,7 @@ export default function Topics() {
         style={{
           minHeight: 52,
           borderRadius: 16,
-          borderWidth: 1.5,
-          borderStyle: 'dashed',
-          borderColor: colors.dashed,
+          backgroundColor: colors.card,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 10,
@@ -162,8 +160,10 @@ export default function Topics() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <FlatList
+      <Animated.FlatList
         data={topics}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         keyExtractor={(t) => t.id}
         contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: tabSpace }}
         keyboardShouldPersistTaps="handled"
@@ -208,6 +208,7 @@ export default function Topics() {
           )
         }
       />
+      <CompactTitleBar title="Topics" scrollY={scrollY} showAfter={72} />
     </SafeAreaView>
   );
 }

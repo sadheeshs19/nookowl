@@ -1,11 +1,12 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { Animated, ActivityIndicator, Alert, Image, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { GenderAge } from '../../components/GenderAge';
-import { Avatar, Button, Card, Empty, T } from '../../components/ui';
+import { Avatar, Button, Card, Empty, T, Toggle } from '../../components/ui';
 import { deleteTopic, getFeed, isAdmin, setOpenToCalls, setProfileImage } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
@@ -17,6 +18,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
+  const { scrollY, onScroll } = useCollapsingTitle();
   const tabSpace = useTabBarSpace(20);
   const { profile, refreshProfile } = useAuth();
   const { credits, openSheet } = useCredits();
@@ -113,14 +115,14 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: tabSpace }}>
+      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} contentContainerStyle={{ padding: 20, paddingTop: 8, gap: 16, paddingBottom: tabSpace }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <T variant="title" style={{ flex: 1 }}>Profile</T>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Settings"
             onPress={() => router.push('/settings')}
-            style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border }}
+            style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card }}
           >
             <Icon name="settings" size={22} color={colors.text} />
           </Pressable>
@@ -131,7 +133,7 @@ export default function ProfileScreen() {
             accessibilityRole="button"
             accessibilityLabel={profile.cover_path ? 'Change cover image' : 'Add a cover image'}
             onPress={() => imageMenu('cover')}
-            style={{ height: 150, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+            style={{ height: 150, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.fill }}
           >
             {profile.cover_path ? (
               <Image source={{ uri: profileImageUrl(profile.cover_path)! }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
@@ -198,21 +200,21 @@ export default function ProfileScreen() {
           onPress={() => router.push('/edit-profile')}
         />
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 20, backgroundColor: colors.card }}>
           <View style={{ flex: 1, gap: 3 }}>
             <T variant="label">Open to calls</T>
             <T variant="small" muted>
               {open ? 'People can find you in People and send call requests.' : 'You’re hidden. Turn on when you’re free to talk.'}
             </T>
           </View>
-          <Switch accessibilityLabel="Open to calls" value={open} onValueChange={toggleOpen} trackColor={{ true: colors.online }} />
+          <Toggle accessibilityLabel="Open to calls" value={open} onValueChange={toggleOpen} />
         </View>
 
 
         <Pressable
           accessibilityRole="button"
           onPress={() => openSheet()}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 20, backgroundColor: colors.card }}
         >
           <Icon name="phone" size={22} color={colors.accentText} />
           <View style={{ flex: 1, gap: 2 }}>
@@ -228,7 +230,7 @@ export default function ProfileScreen() {
             ['Likes', likes],
             ['Comments', comments],
           ].map(([label, n]) => (
-            <View key={label} style={{ flex: 1, padding: 12, borderRadius: 16, borderWidth: 1, borderColor: colors.border, alignItems: 'center', gap: 2 }}>
+            <View key={label} style={{ flex: 1, padding: 12, borderRadius: 18, backgroundColor: colors.card, alignItems: 'center', gap: 2 }}>
               <Text style={{ fontFamily: fonts.display, fontSize: 24, color: colors.text }}>{n}</Text>
               <T variant="small" muted>{label}</T>
             </View>
@@ -281,7 +283,8 @@ export default function ProfileScreen() {
         {admin ? (
           <Button kind="secondary" title="Moderation: review reports" icon={<Icon name="flag" size={18} color={colors.text} />} onPress={() => router.push('/admin')} />
         ) : null}
-      </ScrollView>
+      </Animated.ScrollView>
+      <CompactTitleBar title="Profile" scrollY={scrollY} />
     </SafeAreaView>
   );
 }

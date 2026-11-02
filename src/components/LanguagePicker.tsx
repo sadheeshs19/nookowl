@@ -51,9 +51,7 @@ export function LanguagePicker({
         style={{
           minHeight: 48,
           borderRadius: 14,
-          borderWidth: 1,
-          borderColor: colors.border2,
-          backgroundColor: colors.surface,
+          backgroundColor: colors.card,
           paddingHorizontal: 14,
           paddingVertical: 10,
           flexDirection: 'row',

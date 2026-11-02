@@ -211,7 +211,7 @@ export default function Chat() {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {topic ? (
-          <View style={{ alignSelf: 'center', marginTop: 10, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: colors.border }}>
+          <View style={{ alignSelf: 'center', marginTop: 10, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.fill }}>
             <T variant="small" muted numberOfLines={1}>About: {topic}</T>
           </View>
         ) : null}
@@ -305,9 +305,7 @@ export default function Chat() {
                     minHeight: 44,
                     maxHeight: 120,
                     borderRadius: 22,
-                    borderWidth: 1,
-                    borderColor: colors.border2,
-                    backgroundColor: colors.chatBg,
+                    backgroundColor: colors.fill,
                     paddingHorizontal: 16,
                     paddingTop: 11,
                     fontFamily: fonts.body,

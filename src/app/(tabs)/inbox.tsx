@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
+import { Animated, ActivityIndicator, Alert, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Empty, Segmented, T } from '../../components/ui';
@@ -15,6 +16,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Inbox() {
   const { colors } = useTheme();
+  const { scrollY, onScroll } = useCollapsingTitle();
   const tabSpace = useTabBarSpace(8);
   const { session } = useAuth();
   const me = session?.user.id;
@@ -73,72 +75,76 @@ export default function Inbox() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={{ paddingHorizontal: 20, paddingTop: 8, gap: 14 }}>
-        <T variant="title">Inbox</T>
-        <Segmented
-          value={tab}
-          onChange={setTab}
-          options={[
-            { key: 'chats', label: 'Chats' },
-            { key: 'requests', label: `Requests · ${requests.length}` },
-          ]}
-        />
-        {tab === 'chats' && hoots.length ? (
-          <View style={{ gap: 8 }}>
-            <T variant="caps" muted>Hooted at you</T>
-            {hoots.map((h) => (
-              <View
-                key={h.from_id}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 16, backgroundColor: colors.noticeBg }}
-              >
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Open chat with ${h.username}`}
-                  onPress={() => router.push({ pathname: '/chat/[id]', params: { id: h.conversation_id } })}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}
-                >
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`View ${h.username}’s profile`}
-                    onPress={() => router.push({ pathname: '/user/[id]', params: { id: h.from_id } })}
-                  >
-                    <Avatar name={h.username} path={h.avatar_path} size={44} />
-                    <View style={{ position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.noticeBg }}>
-                      <Icon name="owl" size={13} color={colors.onAccent} />
-                    </View>
-                  </Pressable>
-                  <View style={{ flex: 1, gap: 2 }}>
-                    <T variant="label" style={{ color: colors.noticeFg }}>{h.username} hooted at you</T>
-                    <T variant="small" style={{ color: colors.noticeFg }}>
-                      {timeAgo(h.created_at)} · {h.total} {h.total === 1 ? 'hoot' : 'hoots'} together
-                    </T>
-                  </View>
-                </Pressable>
-                <Button kind="secondary" title="Hoot back" loading={busyHoot === h.from_id} onPress={() => hootBack(h)} />
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Call ${h.username}`}
-                  onPress={() => callBack(h)}
-                  style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <Icon name="phone" size={18} color={colors.onAccent} />
-                </Pressable>
-              </View>
-            ))}
-          </View>
-        ) : null}
-        {tab === 'requests' && requests.length ? (
-          <View style={{ flexDirection: 'row', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.noticeBg }}>
-            <T variant="small" style={{ color: colors.noticeFg, flex: 1 }}>
-              You haven’t talked to these people yet. They can’t see if you’ve read their message until you accept.
-            </T>
-          </View>
-        ) : null}
-      </View>
-      <FlatList
+      <Animated.FlatList
         data={list}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        ListHeaderComponent={
+      <View style={{ paddingHorizontal: 20, paddingTop: 8, gap: 14 }}>
+            <T variant="title">Inbox</T>
+            <Segmented
+              value={tab}
+              onChange={setTab}
+              options={[
+                { key: 'chats', label: 'Chats' },
+                { key: 'requests', label: `Requests · ${requests.length}` },
+              ]}
+            />
+            {tab === 'chats' && hoots.length ? (
+              <View style={{ gap: 8 }}>
+                <T variant="caps" muted>Hooted at you</T>
+                {hoots.map((h) => (
+                  <View
+                    key={h.from_id}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 16, backgroundColor: colors.noticeBg }}
+                  >
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Open chat with ${h.username}`}
+                      onPress={() => router.push({ pathname: '/chat/[id]', params: { id: h.conversation_id } })}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}
+                    >
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`View ${h.username}’s profile`}
+                        onPress={() => router.push({ pathname: '/user/[id]', params: { id: h.from_id } })}
+                      >
+                        <Avatar name={h.username} path={h.avatar_path} size={44} />
+                        <View style={{ position: 'absolute', right: -4, bottom: -4, width: 22, height: 22, borderRadius: 11, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.noticeBg }}>
+                          <Icon name="owl" size={13} color={colors.onAccent} />
+                        </View>
+                      </Pressable>
+                      <View style={{ flex: 1, gap: 2 }}>
+                        <T variant="label" style={{ color: colors.noticeFg }}>{h.username} hooted at you</T>
+                        <T variant="small" style={{ color: colors.noticeFg }}>
+                          {timeAgo(h.created_at)} · {h.total} {h.total === 1 ? 'hoot' : 'hoots'} together
+                        </T>
+                      </View>
+                    </Pressable>
+                    <Button kind="secondary" title="Hoot back" loading={busyHoot === h.from_id} onPress={() => hootBack(h)} />
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Call ${h.username}`}
+                      onPress={() => callBack(h)}
+                      style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <Icon name="phone" size={18} color={colors.onAccent} />
+                    </Pressable>
+                  </View>
+                ))}
+              </View>
+            ) : null}
+            {tab === 'requests' && requests.length ? (
+              <View style={{ flexDirection: 'row', gap: 12, padding: 14, borderRadius: 16, backgroundColor: colors.noticeBg }}>
+                <T variant="small" style={{ color: colors.noticeFg, flex: 1 }}>
+                  You haven’t talked to these people yet. They can’t see if you’ve read their message until you accept.
+                </T>
+              </View>
+            ) : null}
+          </View>
+        }
         keyExtractor={(c) => c.id}
-        contentContainerStyle={{ paddingTop: 8, paddingBottom: tabSpace }}
+        contentContainerStyle={{ paddingBottom: tabSpace }}
         renderItem={({ item }) => {
           const preview = item.last
             ? item.last.audio_path
@@ -187,6 +193,7 @@ export default function Inbox() {
           )
         }
       />
+      <CompactTitleBar title="Inbox" scrollY={scrollY} />
     </SafeAreaView>
   );
 }

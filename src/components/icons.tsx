@@ -31,7 +31,17 @@ export type IconName =
   | 'owl'
   | 'female'
   | 'male'
-  | 'nonbinary';
+  | 'nonbinary'
+  | 'lock'
+  | 'cake'
+  | 'moon'
+  | 'doc'
+  | 'help'
+  | 'shield'
+  | 'logout'
+  | 'trash'
+  | 'chevronRight'
+  | 'card';
 
 export function Icon({
   name,
@@ -92,6 +102,31 @@ export function Icon({
         <>
           <Circle {...common} cx={11} cy={11} r={7} />
           <Path {...common} d="M20 20l-4-4" />
+        </>
+      )}
+      {name === 'lock' && (
+        <>
+          <Rect {...common} x={5} y={11} width={14} height={10} rx={2} />
+          <Path {...common} d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </>
+      )}
+      {name === 'cake' && <Path {...common} d="M4 21h16M5 21v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7M5 16c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 5 0M12 12V8M12 5.5c.8-.8.8-1.7 0-2.5-.8.8-.8 1.7 0 2.5z" />}
+      {name === 'moon' && <Path {...common} d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />}
+      {name === 'doc' && <Path {...common} d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h6" />}
+      {name === 'help' && (
+        <>
+          <Circle {...common} cx={12} cy={12} r={9} />
+          <Path {...common} d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" />
+        </>
+      )}
+      {name === 'shield' && <Path {...common} d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" />}
+      {name === 'logout' && <Path {...common} d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11" />}
+      {name === 'trash' && <Path {...common} d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />}
+      {name === 'chevronRight' && <Path {...common} d="M9 6l6 6-6 6" />}
+      {name === 'card' && (
+        <>
+          <Rect {...common} x={4} y={5} width={16} height={14} rx={3} />
+          <Path {...common} d="M8 15h5M8 11h8" />
         </>
       )}
       {name === 'female' && (

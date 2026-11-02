@@ -25,15 +25,21 @@ export type ThemeColors = {
   callBg: string;
   callPanel: string;
   overlay: string;
+  /** Soft grey fill for inputs, chips, secondary buttons and segmented controls. */
+  fill: string;
+  /** The selected segment in a segmented control. */
+  segmentOn: string;
+  /** Switch track when off. */
+  toggleOff: string;
 };
 
 export const light: ThemeColors = {
-  bg: '#FFFFFF',
+  bg: '#F2F2F7',
   card: '#FFFFFF',
-  surface: '#F5F3F0',
-  chatBg: '#FAFAFB',
-  border: '#E6E7EB',
-  border2: '#D9DBE1',
+  surface: '#F2F2F7',
+  chatBg: '#F2F2F7',
+  border: 'rgba(60,60,67,0.12)',
+  border2: 'rgba(60,60,67,0.2)',
   dashed: '#9AA0AE',
   text: '#16181D',
   muted: '#5B6070',
@@ -51,18 +57,21 @@ export const light: ThemeColors = {
   noticeFg: '#7C2D12',
   warnBg: '#FEF3C7',
   warnFg: '#78350F',
-  callBg: '#F7F4F0',
+  callBg: '#F2F2F7',
   callPanel: '#FFFFFF',
   overlay: 'rgba(0,0,0,0.4)',
+  fill: 'rgba(118,118,128,0.12)',
+  segmentOn: '#FFFFFF',
+  toggleOff: '#E3E3E8',
 };
 
 export const dark: ThemeColors = {
-  bg: '#121317',
-  card: '#1A1C21',
-  surface: '#1C1E24',
-  chatBg: '#0D0E11',
-  border: '#2A2D35',
-  border2: '#3A3F4B',
+  bg: '#0B0B10',
+  card: '#1C1C1F',
+  surface: '#2A2A2E',
+  chatBg: '#0B0B10',
+  border: 'rgba(84,84,88,0.45)',
+  border2: 'rgba(84,84,88,0.65)',
   dashed: '#5B6070',
   text: '#F3F4F6',
   muted: '#A3A9B6',
@@ -80,9 +89,12 @@ export const dark: ThemeColors = {
   noticeFg: '#FDBA8C',
   warnBg: '#3A2E10',
   warnFg: '#FDE68A',
-  callBg: '#121317',
-  callPanel: '#22252C',
+  callBg: '#0B0B10',
+  callPanel: '#1C1C1F',
   overlay: 'rgba(0,0,0,0.6)',
+  fill: 'rgba(118,118,128,0.24)',
+  segmentOn: '#636366',
+  toggleOff: '#39393D',
 };
 
 export const fonts = {
