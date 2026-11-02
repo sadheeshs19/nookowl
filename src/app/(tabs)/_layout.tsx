@@ -2,6 +2,7 @@ import { Redirect } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
 import { useCallback, useEffect, useState } from 'react';
 import { Icon, type IconName } from '../../components/icons';
+import { GlassBackground, useIslandStyle } from '../../components/GlassTabBar';
 import { getCallRequests, listConversations, listHootsForMe } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { useRealtime } from '../../lib/useRealtime';
@@ -41,6 +42,7 @@ export default function TabsLayout() {
   const { ready, session, profile } = useAuth();
   const { colors } = useTheme();
   const badges = useBadges(session?.user.id);
+  const island = useIslandStyle();
 
   if (ready && !session) return <Redirect href="/welcome" />;
   if (ready && session && !profile) return <Redirect href="/onboarding" />;
@@ -56,7 +58,8 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.accentText,
         tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: { backgroundColor: colors.bg, borderTopColor: colors.border },
+        tabBarStyle: island,
+        tabBarBackground: () => <GlassBackground />,
         tabBarLabelStyle: { fontFamily: fonts.bodySemi, fontSize: 11 },
         tabBarBadgeStyle: { backgroundColor: colors.accent, color: colors.onAccent, fontFamily: fonts.bodyBold, fontSize: 11 },
         sceneStyle: { backgroundColor: colors.bg },

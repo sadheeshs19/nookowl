@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { TopicCard } from '../../components/TopicCard';
 import { Button, Chip, Empty, T } from '../../components/ui';
@@ -15,6 +16,7 @@ const DEFAULT_TAGS = ['LanguageExchange', 'CantSleep', 'Cricket', 'Careers', 'Ru
 
 export default function Topics() {
   const { colors } = useTheme();
+  const tabSpace = useTabBarSpace();
   const { session } = useAuth();
   const me = session?.user.id;
   const [query, setQuery] = useState('');
@@ -163,7 +165,7 @@ export default function Topics() {
       <FlatList
         data={topics}
         keyExtractor={(t) => t.id}
-        contentContainerStyle={{ padding: 20, gap: 12 }}
+        contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: tabSpace }}
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={header}
         refreshControl={

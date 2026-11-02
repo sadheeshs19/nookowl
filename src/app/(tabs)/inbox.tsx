@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Empty, Segmented, T } from '../../components/ui';
 import { listConversations, listHootsForMe, sendHoot, startCall } from '../../lib/api';
@@ -14,6 +15,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Inbox() {
   const { colors } = useTheme();
+  const tabSpace = useTabBarSpace();
   const { session } = useAuth();
   const me = session?.user.id;
   const [tab, setTab] = useState<'chats' | 'requests'>('chats');
@@ -136,7 +138,7 @@ export default function Inbox() {
       <FlatList
         data={list}
         keyExtractor={(c) => c.id}
-        contentContainerStyle={{ paddingVertical: 8 }}
+        contentContainerStyle={{ paddingTop: 8, paddingBottom: tabSpace }}
         renderItem={({ item }) => {
           const preview = item.last
             ? item.last.audio_path

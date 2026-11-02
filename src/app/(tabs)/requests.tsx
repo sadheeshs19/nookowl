@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { Avatar, Button, Card, Empty, T } from '../../components/ui';
 import { acceptCallRequest, declineCallRequest, getCallRequests } from '../../lib/api';
@@ -12,6 +13,7 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Requests() {
   const { colors } = useTheme();
+  const tabSpace = useTabBarSpace();
   // Only requests sent to me are shown; requests I've sent stay private.
   const [list, setList] = useState<CallRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,7 +78,7 @@ export default function Requests() {
       <FlatList
         data={list}
         keyExtractor={(r) => r.id}
-        contentContainerStyle={{ padding: 20, gap: 12 }}
+        contentContainerStyle={{ padding: 20, gap: 12, paddingBottom: tabSpace }}
         renderItem={({ item }) => (
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>

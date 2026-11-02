@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, Image, PanResponder, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { GenderAge } from '../../components/GenderAge';
 import { Avatar, Button, Empty, T } from '../../components/ui';
@@ -18,6 +19,7 @@ const SWIPE_AT = 110;
 
 export default function People() {
   const { colors } = useTheme();
+  const tabSpace = useTabBarSpace();
   const { profile: me } = useAuth();
   const { credits, openSheet } = useCredits();
   const [people, setPeople] = useState<Profile[]>([]);
@@ -109,7 +111,7 @@ export default function People() {
   const passOpacity = x.interpolate({ inputRange: [-SWIPE_AT, 0], outputRange: [1, 0], extrapolate: 'clamp' });
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg, paddingBottom: tabSpace - 8 }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 14, flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
         <View style={{ flex: 1, gap: 4 }}>
           <T variant="title">Ready to talk</T>

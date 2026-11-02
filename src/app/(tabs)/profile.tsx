@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { GenderAge } from '../../components/GenderAge';
 import { Avatar, Button, Card, Chip, Empty, Segmented, T } from '../../components/ui';
@@ -19,6 +20,7 @@ import { useTheme, type ThemePreference } from '../../theme/ThemeProvider';
 
 export default function ProfileScreen() {
   const { colors, preference, setPreference } = useTheme();
+  const tabSpace = useTabBarSpace();
   const { profile, refreshProfile, signOut } = useAuth();
   const { credits, openSheet } = useCredits();
   const [topics, setTopics] = useState<FeedTopic[]>([]);
@@ -184,7 +186,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 20, gap: 16 }}>
+      <ScrollView contentContainerStyle={{ padding: 20, gap: 16, paddingBottom: tabSpace }}>
         <T variant="title">Profile</T>
 
         <View>
