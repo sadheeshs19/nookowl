@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CallWatcher } from '../components/CallWatcher';
-import { OwlSplash } from '../components/OwlSplash';
+import { BookOwlSplash } from '../components/BookOwlSplash';
 import { prepareAds } from '../lib/ads';
 import { AuthProvider } from '../lib/auth';
 import { CreditsProvider } from '../lib/credits';
@@ -41,7 +41,7 @@ function AppShell() {
         <Stack.Screen name="call/[id]" options={{ gestureEnabled: false, animation: 'fade' }} />
       </Stack>
       <CallWatcher />
-      {showOwl ? <OwlSplash onDone={done} /> : null}
+      {showOwl ? <BookOwlSplash onDone={done} /> : null}
     </View>
   );
 }
