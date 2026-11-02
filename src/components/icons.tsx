@@ -96,20 +96,26 @@ export function Icon({
       )}
       {name === 'female' && (
         <>
-          <Circle {...common} cx={12} cy={9} r={5} />
-          <Path {...common} d="M12 14v7M9 18h6" />
+          <Circle cx={12} cy={4.2} r={2.6} fill={color} />
+          <Path
+            fill={color}
+            d="M12 7.8c-1.9 0-3 1-3.5 2.6L6.6 16.3h3v5.2h1.7v-5.2h1.4v5.2h1.7v-5.2h3l-1.9-5.9C15 8.8 13.9 7.8 12 7.8z"
+          />
         </>
       )}
       {name === 'male' && (
         <>
-          <Circle {...common} cx={10} cy={14} r={5} />
-          <Path {...common} d="M13.5 10.5L20 4M15 4h5v5" />
+          <Circle cx={12} cy={4.2} r={2.6} fill={color} />
+          <Path
+            fill={color}
+            d="M9.4 7.9h5.2c1 0 1.8.8 1.8 1.8v6.2h-1.8v5.6h-1.8v-5.4h-1.6v5.4H9.4v-5.6H7.6V9.7c0-1 .8-1.8 1.8-1.8z"
+          />
         </>
       )}
       {name === 'nonbinary' && (
         <>
-          <Circle {...common} cx={12} cy={14} r={5} />
-          <Path {...common} d="M12 9V3M9.5 4.5l5 3M14.5 4.5l-5 3" />
+          <Circle cx={12} cy={6.5} r={3.5} fill={color} />
+          <Path fill={color} d="M4.5 21c0-4.4 3.4-7.5 7.5-7.5s7.5 3.1 7.5 7.5z" />
         </>
       )}
       {name === 'owl' && (

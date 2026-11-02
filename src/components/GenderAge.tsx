@@ -27,7 +27,7 @@ export function GenderAge({ gender, age, size = 'small' }: { gender?: Gender | n
         backgroundColor: color + '22',
       }}
     >
-      {g ? <Icon name={g === 'woman' ? 'female' : g === 'man' ? 'male' : 'nonbinary'} size={big ? 15 : 13} color={color} strokeWidth={2.4} /> : null}
+      {g ? <Icon name={g === 'woman' ? 'female' : g === 'man' ? 'male' : 'nonbinary'} size={big ? 19 : 16} color={color} /> : null}
       {age ? <Text style={{ fontFamily: fonts.bodySemi, fontSize: big ? 14 : 12, color }}>{age}</Text> : null}
     </View>
   );
