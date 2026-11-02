@@ -2,10 +2,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useInterstitialAd } from 'react-native-google-mobile-ads';
 import { interstitialAdUnitId, markFullScreenAdShown, shouldShowAfterCallAd } from '../../lib/ads';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Animated, Easing, Pressable, Text, View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { NightSky, NIGHT } from '../../components/NightSky';
+import { haptic } from '../../lib/haptics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon, type IconName } from '../../components/icons';
-import { Avatar, Button, T } from '../../components/ui';
+import { Avatar, Button, PressableScale, T } from '../../components/ui';
 import { activateConversationWith, getCall, getProfile, rateCall, report, setCallStatus } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { clock } from '../../lib/format';
@@ -14,7 +17,7 @@ import { useCredits } from '../../lib/credits';
 import { useAgoraCall } from '../../lib/useAgoraCall';
 import { useRealtime } from '../../lib/useRealtime';
 import { fonts } from '../../theme/colors';
-import { useTheme } from '../../theme/ThemeProvider';
+import { playSound } from '../../lib/sounds';
 
 const PROMPTS = [
   'What’s the best thing that happened to you this week?',
@@ -28,7 +31,6 @@ const PROMPTS = [
 const RING_TIMEOUT_MS = 45000;
 
 export default function CallScreen() {
-  const { colors } = useTheme();
   const { session } = useAuth();
   const me = session?.user.id;
   const { id, name } = useLocalSearchParams<{ id: string; name?: string }>();
@@ -80,6 +82,11 @@ export default function CallScreen() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (phase === 'live' && agora.state === 'connected' && remaining != null && remaining <= 0) finish();
   }, [agora.state, finish, phase, remaining]);
+
+  // A soft chime when the other person's voice comes through.
+  useEffect(() => {
+    if (agora.state === 'connected') playSound('connect');
+  }, [agora.state]);
 
   // Show the updated balance after the call.
   useEffect(() => {
@@ -151,14 +158,16 @@ export default function CallScreen() {
 
   if (phase === 'after') {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: colors.callBg, padding: 24, gap: 24, justifyContent: 'center' }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: NIGHT.top, padding: 24, gap: 24, justifyContent: 'center' }}>
+        <StatusBar style="light" />
+        <NightSky moon />
         <View style={{ alignItems: 'center', gap: 12 }}>
           <Avatar name={displayName} path={other?.avatar_path} size={96} />
-          <T variant="title" style={{ textAlign: 'center' }}>Call ended</T>
-          {agora.connectedAt ? <T muted>You talked for {clock((now - agora.connectedAt) / 1000)}</T> : null}
+          <T variant="title" style={{ textAlign: 'center', color: NIGHT.text }}>Call ended</T>
+          {agora.connectedAt ? <T style={{ color: NIGHT.muted }}>You talked for {clock((now - agora.connectedAt) / 1000)}</T> : null}
           {isCaller && credits ? (
             <Pressable accessibilityRole="button" onPress={() => openSheet()}>
-              <T variant="small" style={{ color: colors.accentText }}>
+              <T variant="small" style={{ color: '#FDBA8C' }}>
                 {Math.floor(credits.total_seconds / 60)} call minutes left · Get more
               </T>
             </Pressable>
@@ -166,7 +175,7 @@ export default function CallScreen() {
         </View>
 
         <View style={{ gap: 10, alignItems: 'center' }}>
-          <T variant="label">How was the call?</T>
+          <T variant="label" style={{ color: NIGHT.text }}>How was the call?</T>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {[1, 2, 3, 4, 5].map((n) => (
               <Pressable
@@ -174,19 +183,20 @@ export default function CallScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`${n} out of 5`}
                 onPress={() => {
+                  haptic.select();
                   setRating(n);
                   if (call) rateCall(call, n).catch(() => {});
                 }}
                 style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}
               >
-                <Text style={{ fontSize: 32, color: n <= rating ? '#F59E0B' : colors.border2 }}>★</Text>
+                <Text style={{ fontSize: 34, color: n <= rating ? '#FBBF24' : 'rgba(255,255,255,0.22)' }}>★</Text>
               </Pressable>
             ))}
           </View>
         </View>
 
         <View style={{ gap: 10 }}>
-          <T variant="label" style={{ textAlign: 'center' }}>Stay in touch with {displayName}?</T>
+          <T variant="label" style={{ textAlign: 'center', color: NIGHT.text }}>Stay in touch with {displayName}?</T>
           <Button
             title="Yes, save to Inbox"
             onPress={async () => {
@@ -199,9 +209,10 @@ export default function CallScreen() {
               }
             }}
           />
-          <Button kind="secondary" title="No thanks" onPress={() => leave(() => router.replace('/(tabs)'))} />
+          <Button kind="secondary" title="No thanks" onPress={() => leave(() => router.replace('/(tabs)'))} style={{ backgroundColor: NIGHT.glass }} color={NIGHT.text} />
           <Button
             kind="ghost"
+            color={NIGHT.muted}
             title="Report this call"
             onPress={() =>
               other &&
@@ -226,7 +237,9 @@ export default function CallScreen() {
         : 'Connecting…');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.callBg, paddingHorizontal: 24, paddingBottom: 24 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: NIGHT.top, paddingHorizontal: 24, paddingBottom: 24 }}>
+      <StatusBar style="light" />
+      <NightSky glow />
       <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 8 }}>
         <Pressable
           accessibilityRole="button"
@@ -236,23 +249,26 @@ export default function CallScreen() {
               .then(() => Alert.alert('Reported', 'Thanks. You can end the call at any time.'))
               .catch(() => {})
           }
-          style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.fill, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          style={{ minHeight: 40, paddingHorizontal: 14, borderRadius: 999, backgroundColor: NIGHT.glass, flexDirection: 'row', alignItems: 'center', gap: 6 }}
         >
-          <Icon name="flag" size={16} color={colors.muted} />
-          <T variant="small" muted>Report</T>
+          <Icon name="flag" size={15} color={NIGHT.muted} />
+          <T variant="small" style={{ color: NIGHT.muted }}>Report</T>
         </Pressable>
       </View>
 
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 18 }}>
-        <View style={{ width: 168, height: 168, borderRadius: 84, borderWidth: 3, borderColor: colors.accentText, padding: 8 }}>
-          <Avatar name={displayName} path={other?.avatar_path} size={146} />
-        </View>
-        <T variant="title">{displayName}</T>
-        {other?.languages.length ? <T muted>Speaks {other.languages.join(', ')}</T> : null}
-        <Text style={{ fontFamily: fonts.bodySemi, fontSize: 20, color: colors.text, fontVariant: ['tabular-nums'] }}>{status}</Text>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+        <SpeakingAvatar name={displayName} path={other?.avatar_path} level={agora.state === 'connected' ? agora.remoteLevel : 0} ringing={agora.state !== 'connected'} />
+        <Text style={{ fontFamily: fonts.display, fontSize: 32, color: NIGHT.text, marginTop: 10 }}>{displayName}</Text>
+        {other?.languages.length ? <T style={{ color: NIGHT.muted }}>Speaks {other.languages.join(', ')}</T> : null}
+        <Text
+          accessibilityLiveRegion="polite"
+          style={{ fontFamily: fonts.body, fontSize: agora.state === 'connected' ? 40 : 20, letterSpacing: agora.state === 'connected' ? 2 : 0.3, color: NIGHT.text, fontVariant: ['tabular-nums'], opacity: 0.95 }}
+        >
+          {status}
+        </Text>
         {remaining != null && agora.state === 'connected' && remaining <= 120 ? (
-          <View accessibilityLiveRegion="polite" style={{ alignSelf: 'stretch', padding: 12, borderRadius: 14, backgroundColor: colors.warnBg }}>
-            <T variant="small" style={{ color: colors.warnFg, textAlign: 'center' }}>
+          <View accessibilityLiveRegion="polite" style={{ alignSelf: 'stretch', padding: 12, borderRadius: 16, backgroundColor: 'rgba(251,191,36,0.16)' }}>
+            <T variant="small" style={{ color: '#FDE68A', textAlign: 'center' }}>
               {isCaller
                 ? `${clock(remaining)} of call time left. Watch an ad after the call to get more minutes.`
                 : `This call can last ${clock(remaining)} more.`}
@@ -263,11 +279,14 @@ export default function CallScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityHint="Shows another conversation starter"
-          onPress={() => setPrompt((p) => (p + 1) % PROMPTS.length)}
-          style={{ alignSelf: 'stretch', padding: 16, borderRadius: 18, backgroundColor: colors.callPanel, gap: 6 }}
+          onPress={() => {
+            haptic.tap();
+            setPrompt((p) => (p + 1) % PROMPTS.length);
+          }}
+          style={{ alignSelf: 'stretch', padding: 16, borderRadius: 22, backgroundColor: NIGHT.glass, gap: 6, marginTop: 8 }}
         >
-          <T variant="caps" muted>Stuck? Try asking</T>
-          <T style={{ fontSize: 16 }}>{PROMPTS[prompt]}</T>
+          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 12, letterSpacing: 0.6, textTransform: 'uppercase', color: NIGHT.muted }}>Stuck? Try asking</Text>
+          <Text style={{ fontFamily: fonts.body, fontSize: 16, lineHeight: 22, color: NIGHT.text }}>{PROMPTS[prompt]}</Text>
         </Pressable>
       </View>
 
@@ -280,29 +299,67 @@ export default function CallScreen() {
   );
 }
 
+/** The other person's photo with a soft glow that swells while they talk (and breathes while ringing). */
+function SpeakingAvatar({ name, path, level, ringing }: { name: string; path?: string | null; level: number; ringing: boolean }) {
+  const [glow] = useState(() => new Animated.Value(0));
+  const [breath] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    Animated.spring(glow, { toValue: level, useNativeDriver: true, speed: 14, bounciness: 4 }).start();
+  }, [glow, level]);
+  useEffect(() => {
+    if (!ringing) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(breath, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(breath, { toValue: 0, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [breath, ringing]);
+  const pulse = ringing ? breath : glow;
+  return (
+    <View style={{ width: 230, height: 230, alignItems: 'center', justifyContent: 'center' }}>
+      {[1, 0].map((i) => (
+        <Animated.View
+          key={i}
+          style={{
+            position: 'absolute', width: 170, height: 170, borderRadius: 85,
+            backgroundColor: i ? 'rgba(194,65,12,0.28)' : 'rgba(167,139,250,0.30)',
+            opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [i ? 0.15 : 0.25, i ? 0.7 : 0.9] }),
+            transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1.02, i ? 1.38 : 1.2] }) }],
+          }}
+        />
+      ))}
+      <View style={{ padding: 5, borderRadius: 85, backgroundColor: 'rgba(255,255,255,0.18)' }}>
+        <Avatar name={name} path={path} size={150} />
+      </View>
+    </View>
+  );
+}
+
 function CallButton({ label, icon, onPress, on, danger }: { label: string; icon: IconName; onPress: () => void; on?: boolean; danger?: boolean }) {
-  const { colors } = useTheme();
   return (
     <View style={{ alignItems: 'center', gap: 8 }}>
-      <Pressable
+      <PressableScale
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityState={{ selected: !!on }}
         onPress={onPress}
+        feedback={danger ? 'swipe' : 'select'}
+        scaleTo={0.9}
         style={{
-          width: 68,
-          height: 68,
-          borderRadius: 34,
+          width: 72,
+          height: 72,
+          borderRadius: 36,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: danger ? colors.danger : on ? colors.text : colors.callPanel,
-          borderWidth: danger || on ? 0 : 1,
-          borderColor: colors.border,
+          backgroundColor: danger ? '#FF3B30' : on ? NIGHT.glassOn : NIGHT.glass,
         }}
       >
-        <Icon name={icon} size={26} color={danger ? '#FFFFFF' : on ? colors.bg : colors.text} />
-      </Pressable>
-      <T variant="small" muted>{label}</T>
+        <Icon name={icon} size={28} color={danger ? '#FFFFFF' : on ? '#111735' : '#FFFFFF'} />
+      </PressableScale>
+      <Text style={{ fontFamily: fonts.body, fontSize: 13, color: NIGHT.muted }}>{label}</Text>
     </View>
   );
 }

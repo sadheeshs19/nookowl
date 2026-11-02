@@ -71,7 +71,7 @@ export function GlassBackground() {
           tint={isDark ? 'systemChromeMaterialDark' : 'systemChromeMaterialLight'}
           style={StyleSheet.absoluteFill}
         />
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? 'rgba(20,20,28,0.25)' : 'rgba(255,255,255,0.25)' }]} />
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? 'rgba(10,14,31,0.25)' : 'rgba(255,255,255,0.25)' }]} />
       </View>
     );
   }
@@ -79,7 +79,7 @@ export function GlassBackground() {
     <View
       style={[
         StyleSheet.absoluteFill,
-        { backgroundColor: isDark ? 'rgba(28,28,38,0.94)' : 'rgba(255,255,255,0.94)' },
+        { backgroundColor: isDark ? 'rgba(21,26,48,0.94)' : 'rgba(255,255,255,0.94)' },
       ]}
     />
   );

@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Animated, Image, PanResponder, Pressable, Text, View } from 'react-native';
+import { Alert, Animated, Image, PanResponder, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { PersonCardSkeleton } from '../../components/Skeleton';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { GenderAge } from '../../components/GenderAge';
@@ -138,7 +139,7 @@ export default function People() {
 
       <View style={{ flex: 1, marginHorizontal: 20 }}>
         {loading ? (
-          <ActivityIndicator style={{ marginTop: 40 }} color={colors.accent} />
+          <PersonCardSkeleton />
         ) : !current ? (
           <Empty
             title="That’s everyone for now"

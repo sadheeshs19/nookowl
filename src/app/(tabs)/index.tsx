@@ -1,8 +1,10 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, ActivityIndicator, Alert, Pressable, RefreshControl, Text, TextInput, View } from 'react-native';
+import { Animated, Alert, Pressable, RefreshControl, Text, TextInput, View, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { TopicSkeletons } from '../../components/Skeleton';
 import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
+import { OwlPull } from '../../components/OwlPull';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
 import { TopicCard } from '../../components/TopicCard';
@@ -171,7 +173,8 @@ export default function Topics() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            tintColor={colors.accent}
+            tintColor={Platform.OS === 'ios' ? 'transparent' : colors.accent}
+            colors={[colors.accent]}
             onRefresh={async () => {
               setRefreshing(true);
               await load(query);
@@ -191,7 +194,7 @@ export default function Topics() {
         )}
         ListEmptyComponent={
           loading ? (
-            <ActivityIndicator style={{ marginTop: 32 }} color={colors.accent} />
+            <TopicSkeletons />
           ) : q ? (
             <Empty
               title={`Nobody’s talking about “${q}” right now`}
@@ -208,6 +211,7 @@ export default function Topics() {
           )
         }
       />
+      <OwlPull scrollY={scrollY} refreshing={refreshing} />
       <CompactTitleBar title="Topics" scrollY={scrollY} showAfter={72} />
     </SafeAreaView>
   );

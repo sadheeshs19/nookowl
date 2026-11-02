@@ -11,11 +11,13 @@ import { useAuth } from '../lib/auth';
 import { showAdPrivacyOptions } from '../lib/ads';
 import { unregisterPush } from '../lib/push';
 import { useTheme, type ThemePreference } from '../theme/ThemeProvider';
+import { useSoundsSetting } from '../lib/sounds';
 
 export default function SettingsScreen() {
   const { colors, preference, setPreference } = useTheme();
   const { profile, refreshProfile, signOut } = useAuth();
   const [deleting, setDeleting] = useState(false);
+  const [sounds, setSounds] = useSoundsSetting();
 
   const changeGender = async (g: Gender) => {
     try {
@@ -152,7 +154,7 @@ export default function SettingsScreen() {
           <Row icon="card" tint={TILE.teal} title="Edit bio, city and languages" onPress={() => router.push('/edit-profile')} />
         </Group>
 
-        <Group title="Appearance">
+        <Group title="Appearance and sound">
           <Row
             icon="moon"
             tint={TILE.purple}
@@ -168,6 +170,13 @@ export default function SettingsScreen() {
                 ]}
               />
             }
+          />
+          <Row
+            icon="speaker"
+            tint={TILE.pink}
+            title="Sounds"
+            subtitle="A soft hoot and call chime"
+            right={<Toggle accessibilityLabel="Sounds" value={sounds} onValueChange={setSounds} />}
           />
         </Group>
 

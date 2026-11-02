@@ -142,7 +142,10 @@ export function Button({
   disabled,
   style,
   accessibilityLabel,
+  color,
 }: {
+  /** Text colour override (e.g. white on the night call screen). */
+  color?: string;
   title?: string;
   onPress?: () => void;
   kind?: 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -155,7 +158,7 @@ export function Button({
   const { colors } = useTheme();
   const bg =
     kind === 'primary' ? colors.accent : kind === 'danger' ? colors.danger : 'transparent';
-  const fg = kind === 'primary' || kind === 'danger' ? colors.onAccent : colors.text;
+  const fg = color ?? (kind === 'primary' || kind === 'danger' ? colors.onAccent : colors.text);
   return (
     <PressableScale
       accessibilityRole="button"

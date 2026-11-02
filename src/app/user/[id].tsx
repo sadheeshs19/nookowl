@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
 import { GenderAge } from '../../components/GenderAge';
@@ -23,6 +23,11 @@ export default function UserProfile() {
   const [topics, setTopics] = useState<FeedTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [requested, setRequested] = useState(false);
+  // Opening animation: the photo pops in and the rest rises into place.
+  const [enter] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    if (person) Animated.spring(enter, { toValue: 1, useNativeDriver: true, speed: 12, bounciness: 7 }).start();
+  }, [enter, person]);
 
   const isMe = session?.user.id === id;
 
@@ -138,15 +143,21 @@ export default function UserProfile() {
       {header}
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 16 }}>
         <View>
-          <View style={{ height: 150, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.fill }}>
+          <Animated.View style={{ height: 150, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.fill, opacity: enter }}>
             {person.cover_path ? (
               <Image source={{ uri: profileImageUrl(person.cover_path)! }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
             ) : null}
-          </View>
-          <View style={{ marginTop: -46, marginLeft: 16, alignSelf: 'flex-start', padding: 4, borderRadius: 50, backgroundColor: colors.bg }}>
+          </Animated.View>
+          <Animated.View
+            style={{
+              marginTop: -46, marginLeft: 16, alignSelf: 'flex-start', padding: 4, borderRadius: 50, backgroundColor: colors.bg,
+              transform: [{ scale: enter.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }],
+            }}
+          >
             <Avatar name={person.username} path={person.avatar_path} size={88} />
-          </View>
+          </Animated.View>
         </View>
+        <Animated.View style={{ gap: 16, opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }] }}>
 
         <View style={{ gap: 4, marginTop: -6 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -214,6 +225,7 @@ export default function UserProfile() {
             )}
           </View>
         ) : null}
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );

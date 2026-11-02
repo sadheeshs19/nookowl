@@ -2,7 +2,7 @@ import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { OwlBody } from '../components/OwlSplash';
+import { OwlHero } from '../components/OwlHero';
 import { Button, Field, T } from '../components/ui';
 import { useAuth } from '../lib/auth';
 import { authRedirectUrl } from '../lib/magicLink';
@@ -84,9 +84,7 @@ export default function Welcome() {
           contentContainerStyle={{ flexGrow: 1, padding: 24, gap: 20, justifyContent: 'center' }}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={{ alignItems: 'center' }}>
-            <OwlBody size={150} />
-          </View>
+          <OwlHero height={240} />
 
           {!sentTo ? (
             <>

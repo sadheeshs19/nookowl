@@ -24,6 +24,8 @@ export function useAgoraCall(callId: string | undefined, active: boolean, onRemo
   const [muted, setMuted] = useState(false);
   const [speaker, setSpeaker] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** 0..1: how loudly the other person is talking right now (for the speaking glow). */
+  const [remoteLevel, setRemoteLevel] = useState(0);
   const remoteLeft = useRef(onRemoteLeft);
   useEffect(() => {
     remoteLeft.current = onRemoteLeft;
@@ -42,6 +44,13 @@ export function useAgoraCall(callId: string | undefined, active: boolean, onRemo
       onUserOffline: () => remoteLeft.current(),
       // The token only lasts as long as the caller's minutes: when it runs out, the call ends.
       onRequestToken: () => remoteLeft.current(),
+      onAudioVolumeIndication: (_conn, speakers) => {
+        // Remote speakers have a non-zero uid; the local user is reported as uid 0.
+        const remote = speakers.filter((sp) => (sp.uid ?? 0) !== 0);
+        if (!remote.length) return;
+        const v = Math.max(...remote.map((sp) => sp.volume ?? 0));
+        setRemoteLevel(Math.min(1, v / 160));
+      },
       onError: (code, msg) => {
         setError(`${code}: ${msg}`);
       },
@@ -63,6 +72,7 @@ export function useAgoraCall(callId: string | undefined, active: boolean, onRemo
         });
         rtc.registerEventHandler(handler);
         rtc.enableAudio();
+        rtc.enableAudioVolumeIndication(200, 3, true);
         rtc.setEnableSpeakerphone(false);
         rtc.joinChannel(token, channel, 0, {
           clientRoleType: ClientRoleType.ClientRoleBroadcaster,
@@ -106,5 +116,5 @@ export function useAgoraCall(callId: string | undefined, active: boolean, onRemo
     });
   }, []);
 
-  return { state, connectedAt, secondsLeft, muted, speaker, error, toggleMute, toggleSpeaker };
+  return { state, connectedAt, secondsLeft, muted, speaker, error, remoteLevel, toggleMute, toggleSpeaker };
 }

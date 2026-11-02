@@ -26,7 +26,7 @@ export function CompactTitleBar({ title, scrollY, showAfter = 44 }: { title: str
       style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 44,
         alignItems: 'center', justifyContent: 'center',
-        backgroundColor: isDark ? 'rgba(11,11,16,0.96)' : 'rgba(242,242,247,0.96)',
+        backgroundColor: isDark ? 'rgba(10,14,31,0.96)' : 'rgba(242,242,247,0.96)',
         opacity,
       }}
     >

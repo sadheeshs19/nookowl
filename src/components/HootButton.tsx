@@ -8,6 +8,7 @@ import { useRealtime } from '../lib/useRealtime';
 import { fonts } from '../theme/colors';
 import { useTheme } from '../theme/ThemeProvider';
 import { Icon } from './icons';
+import { playSound } from '../lib/sounds';
 
 /**
  * A "free to talk?" nudge. Works like a Facebook poke: after you hoot,
@@ -72,6 +73,7 @@ export function HootButton({ otherId, otherName, onState }: { otherId: string; o
       setState(s);
       onState?.(s);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      playSound('hoot');
       lift.setValue(0);
       Animated.parallel([
         Animated.sequence([

@@ -8,6 +8,7 @@ import { useAuth } from '../../lib/auth';
 import { useRealtime } from '../../lib/useRealtime';
 import { fonts } from '../../theme/colors';
 import { useTheme } from '../../theme/ThemeProvider';
+import { playSound } from '../../lib/sounds';
 
 function useBadges(userId: string | undefined) {
   const [requests, setRequests] = useState(0);
@@ -34,7 +35,15 @@ function useBadges(userId: string | undefined) {
     return () => clearInterval(t);
   }, [refresh]);
 
-  useRealtime('badges', [{ table: 'call_requests' }, { table: 'conversations' }, { table: 'hoots', event: 'INSERT' }], refresh, !!userId);
+  useRealtime(
+    'badges',
+    [{ table: 'call_requests' }, { table: 'conversations' }, { table: 'hoots', event: 'INSERT' }],
+    (p) => {
+      if (p.table === 'hoots' && p.new?.to_id === userId) playSound('hoot');
+      refresh();
+    },
+    !!userId,
+  );
   return { requests, inbox };
 }
 

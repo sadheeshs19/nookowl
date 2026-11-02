@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Animated, ActivityIndicator, Alert, Pressable, View } from 'react-native';
+import { Animated, Alert, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RowSkeletons } from '../../components/Skeleton';
 import { CompactTitleBar, useCollapsingTitle } from '../../components/LargeTitle';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { Icon } from '../../components/icons';
@@ -184,7 +185,7 @@ export default function Inbox() {
         }}
         ListEmptyComponent={
           loading ? (
-            <ActivityIndicator style={{ marginTop: 24 }} color={colors.accent} />
+            <RowSkeletons />
           ) : (
             <Empty
               title={tab === 'chats' ? 'No chats yet' : 'No message requests'}
