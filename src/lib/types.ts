@@ -9,6 +9,8 @@ export type Profile = {
   open_to_calls: boolean;
   avatar_path: string | null;
   cover_path: string | null;
+  gender: import('./gender').Gender | null;
+  who_can_call: import('./gender').WhoCanCall;
   /** Suspended by a moderator. */
   banned?: boolean;
   created_at: string;

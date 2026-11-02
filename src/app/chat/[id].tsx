@@ -26,6 +26,7 @@ import {
   startCall,
 } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
+import { genderLabel } from '../../lib/gender';
 import { useCredits } from '../../lib/credits';
 import { clock } from '../../lib/format';
 import type { Conversation, Message, Profile } from '../../lib/types';
@@ -177,8 +178,8 @@ export default function Chat() {
         <Avatar name={other?.username} path={other?.avatar_path} />
         <View style={{ flex: 1 }}>
           <T variant="label">{other?.username ?? ' '}</T>
-          {other?.city || hootCount ? (
-            <T variant="small" muted>{[other?.city, hootCount ? `${hootCount} ${hootCount === 1 ? 'hoot' : 'hoots'}` : null].filter(Boolean).join(' · ')}</T>
+          {other?.city || hootCount || genderLabel(other?.gender) ? (
+            <T variant="small" muted>{[genderLabel(other?.gender), other?.city, hootCount ? `${hootCount} ${hootCount === 1 ? 'hoot' : 'hoots'}` : null].filter(Boolean).join(' · ')}</T>
           ) : null}
         </View>
         {canCall && other ? <HootButton otherId={other.id} otherName={other.username} onState={onHootState} /> : null}

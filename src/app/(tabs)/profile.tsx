@@ -3,8 +3,9 @@ import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '../../components/icons';
-import { Avatar, Button, Card, Empty, Segmented, T } from '../../components/ui';
-import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setOpenToCalls, setProfileImage } from '../../lib/api';
+import { Avatar, Button, Card, Chip, Empty, Segmented, T } from '../../components/ui';
+import { deleteMyAccount, deleteTopic, getFeed, isAdmin, setGender, setOpenToCalls, setProfileImage, setWhoCanCall } from '../../lib/api';
+import { GENDERS, WHO_CAN_CALL, genderLabel, type Gender, type WhoCanCall } from '../../lib/gender';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
 import { showAdPrivacyOptions } from '../../lib/ads';
@@ -91,6 +92,24 @@ export default function ProfileScreen() {
       { text: 'Remove', style: 'destructive', onPress: () => removeImage(kind) },
       { text: 'Cancel', style: 'cancel' },
     ]);
+  };
+
+  const changeGender = async (g: Gender) => {
+    try {
+      await setGender(g);
+      await refreshProfile();
+    } catch (e) {
+      Alert.alert('Could not update', e instanceof Error ? e.message : '');
+    }
+  };
+
+  const changeWhoCanCall = async (w: WhoCanCall) => {
+    try {
+      await setWhoCanCall(w);
+      await refreshProfile();
+    } catch (e) {
+      Alert.alert('Could not update', e instanceof Error ? e.message : '');
+    }
   };
 
   const confirmDeleteAccount = () =>
@@ -190,7 +209,7 @@ export default function ProfileScreen() {
           <View style={{ flex: 1, gap: 4 }}>
             <T variant="heading">{profile.username}</T>
             <T variant="small" muted>
-              {[profile.city, profile.languages.length ? `Speaks ${profile.languages.join(', ')}` : null].filter(Boolean).join(' · ')}
+              {[genderLabel(profile.gender), profile.city, profile.languages.length ? `Speaks ${profile.languages.join(', ')}` : null].filter(Boolean).join(' · ')}
             </T>
             {profile.bio ? <T variant="small">{profile.bio}</T> : null}
           </View>
@@ -204,6 +223,26 @@ export default function ProfileScreen() {
             </T>
           </View>
           <Switch accessibilityLabel="Open to calls" value={open} onValueChange={toggleOpen} trackColor={{ true: colors.online }} />
+        </View>
+
+        <View style={{ gap: 12, padding: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border }}>
+          <View style={{ gap: 8 }}>
+            <T variant="label">Gender</T>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {GENDERS.map((g) => (
+                <Chip key={g.key} label={g.label} selected={profile.gender === g.key} onPress={() => changeGender(g.key)} />
+              ))}
+            </View>
+          </View>
+          <View style={{ gap: 8 }}>
+            <T variant="label">Who can call me</T>
+            <Segmented<WhoCanCall>
+              value={profile.who_can_call ?? 'everyone'}
+              onChange={changeWhoCanCall}
+              options={WHO_CAN_CALL.map((w) => ({ key: w.key, label: w.label }))}
+            />
+            <T variant="small" muted>{WHO_CAN_CALL.find((w) => w.key === (profile.who_can_call ?? 'everyone'))?.hint}</T>
+          </View>
         </View>
 
         <Pressable

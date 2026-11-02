@@ -8,6 +8,7 @@ import { getPeopleOpenToCalls, sendCallRequest, startCall } from '../../lib/api'
 import { CreditsPill } from '../../components/CreditsSheet';
 import { useAuth } from '../../lib/auth';
 import { useCredits } from '../../lib/credits';
+import { genderLabel } from '../../lib/gender';
 import { profileImageUrl } from '../../lib/images';
 import type { Profile } from '../../lib/types';
 import { fonts } from '../../theme/colors';
@@ -176,7 +177,7 @@ export default function People() {
                 <Avatar name={current.username} path={current.avatar_path} size={104} />
               </View>
               <T variant="heading">{current.username}</T>
-              <T variant="small" muted>{[current.city, 'open for calls'].filter(Boolean).join(' · ')}</T>
+              <T variant="small" muted>{[genderLabel(current.gender), current.city, 'open for calls'].filter(Boolean).join(' · ')}</T>
               {current.bio ? <T style={{ textAlign: 'center' }}>{current.bio}</T> : null}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>
                 {[...current.languages, ...current.interests].slice(0, 6).map((tag) => (

@@ -31,7 +31,7 @@ export async function getProfile(id: string): Promise<Profile | null> {
   return check(await supabase.from('profiles').select('*').eq('id', id).maybeSingle()) as Profile | null;
 }
 
-export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path'>) {
+export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' | 'cover_path' | 'who_can_call'>) {
   check(await supabase.from('profiles').upsert(p));
 }
 
@@ -39,6 +39,16 @@ export async function saveProfile(p: Omit<Profile, 'created_at' | 'avatar_path' 
 export async function setProfileImage(kind: 'avatar' | 'cover', path: string | null) {
   const id = await me();
   check(await supabase.from('profiles').update(kind === 'avatar' ? { avatar_path: path } : { cover_path: path }).eq('id', id));
+}
+
+export async function setGender(gender: Profile['gender']) {
+  const id = await me();
+  check(await supabase.from('profiles').update({ gender }).eq('id', id));
+}
+
+export async function setWhoCanCall(who_can_call: Profile['who_can_call']) {
+  const id = await me();
+  check(await supabase.from('profiles').update({ who_can_call }).eq('id', id));
 }
 
 export async function setOpenToCalls(open: boolean) {
@@ -100,16 +110,10 @@ export async function addComment(topicId: string, body: string) {
 
 // ---------------------------------------------------------------- people
 export async function getPeopleOpenToCalls(): Promise<Profile[]> {
-  const id = await me();
+  await me();
   return check(
-    await supabase
-      .from('profiles')
-      .select('*')
-      .eq('open_to_calls', true)
-      .eq('banned', false)
-      .neq('id', id)
-      .order('created_at', { ascending: false })
-      .limit(50),
+    // Only people open to calls whose "Who can call me" lets me in.
+    await supabase.rpc('get_people_for_me'),
   ) as Profile[];
 }
 

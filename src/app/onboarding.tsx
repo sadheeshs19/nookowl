@@ -6,6 +6,7 @@ import { LanguagePicker } from '../components/LanguagePicker';
 import { Button, Chip, Field, T } from '../components/ui';
 import { isUsernameTaken, saveProfile } from '../lib/api';
 import { useAuth } from '../lib/auth';
+import { GENDERS, type Gender } from '../lib/gender';
 import { useTheme } from '../theme/ThemeProvider';
 
 const INTERESTS = ['Just chat', 'Languages', 'Movies', 'Music', 'Books', 'Cricket', 'Football', 'Travel', 'Food', 'Careers', 'Tech', 'Fitness', 'Gaming', 'Night owl'];
@@ -18,6 +19,7 @@ export default function Onboarding() {
   const [city, setCity] = useState('');
   const [bio, setBio] = useState('');
   const [languages, setLanguages] = useState<string[]>([]);
+  const [gender, setGender] = useState<Gender | null>(null);
   const [interests, setInterests] = useState<string[]>([]);
   const [openToCalls, setOpenToCalls] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -45,6 +47,10 @@ export default function Onboarding() {
       setError('Sorry, Nooks Owl is only for people aged 18 and over.');
       return;
     }
+    if (!gender) {
+      setError('Choose your gender, or “Prefer not to say”.');
+      return;
+    }
     if (languages.length === 0) {
       setError('Pick at least one language you can talk in.');
       return;
@@ -67,6 +73,7 @@ export default function Onboarding() {
         city: city.trim() || null,
         bio: bio.trim() || null,
         languages,
+        gender,
         interests,
         open_to_calls: openToCalls,
       });
@@ -85,7 +92,7 @@ export default function Onboarding() {
         <ScrollView contentContainerStyle={{ padding: 24, gap: 20 }} keyboardShouldPersistTaps="handled">
           <View style={{ gap: 6 }}>
             <T variant="title">Set up your nook</T>
-            <T muted>People see your nickname, city and languages. Never your email.</T>
+            <T muted>People see your nickname, gender, city and languages. Never your email.</T>
           </View>
 
           <Field label="Nickname" value={username} onChangeText={setUsername} placeholder="arjun.talks" autoCapitalize="none" autoCorrect={false} />
@@ -97,6 +104,15 @@ export default function Onboarding() {
             placeholder="1998"
             keyboardType="number-pad"
           />
+          <View style={{ gap: 10 }}>
+            <T variant="label">Gender</T>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {GENDERS.map((g) => (
+                <Chip key={g.key} label={g.label} selected={gender === g.key} onPress={() => setGender(g.key)} />
+              ))}
+            </View>
+            <T variant="small" muted>Shown on your profile. You can choose who’s allowed to call you in Profile.</T>
+          </View>
           <Field label="City (optional)" value={city} onChangeText={setCity} placeholder="Kochi" />
           <Field label="A line about you (optional)" value={bio} onChangeText={setBio} placeholder="Movies, travel stories, or honestly anything." maxLength={160} multiline />
 
