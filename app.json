@@ -14,7 +14,9 @@
         "NSMicrophoneUsageDescription": "Nooks Owl uses your microphone for voice calls and voice notes.",
         "UIBackgroundModes": [
           "audio"
-        ]
+        ],
+        "NSCameraUsageDescription": "Nooks Owl does not use your camera. Profile pictures are chosen from your photo library.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "usesAppleSignIn": true
     },
@@ -90,7 +92,7 @@
         "expo-image-picker",
         {
           "photosPermission": "Nooks Owl uses your photos so you can choose a profile picture and cover image.",
-          "cameraPermission": false,
+          "cameraPermission": "Nooks Owl does not use your camera. Profile pictures are chosen from your photo library.",
           "microphonePermission": false
         }
       ],
