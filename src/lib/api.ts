@@ -109,9 +109,9 @@ export async function getTrendingTags(): Promise<string[]> {
   return rows.map((r) => r.tag);
 }
 
-export async function postTopic(body: string, tags: string[]) {
+export async function postTopic(body: string, tags: string[], style: string = 'plain', mood: string | null = null) {
   const user_id = await me();
-  check(await supabase.from('topics').insert({ user_id, body: body.trim(), tags }));
+  check(await supabase.from('topics').insert({ user_id, body: body.trim(), tags, style, mood }));
 }
 
 export async function deleteTopic(id: string) {

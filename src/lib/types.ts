@@ -39,6 +39,9 @@ export type FeedTopic = {
   liked_by_me: boolean;
   last_comment_username: string | null;
   last_comment_body: string | null;
+  /** Card colour style ('plain' by default) and optional mood emoji. */
+  style?: string;
+  mood?: string | null;
 };
 
 export type TopicComment = {
