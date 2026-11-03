@@ -1,11 +1,13 @@
 import { Redirect, router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { OwlHero } from '../components/OwlHero';
-import { Button, Field, T } from '../components/ui';
+import { Button, Field, PressableScale, T } from '../components/ui';
 import { useAuth } from '../lib/auth';
 import { authRedirectUrl } from '../lib/magicLink';
+import { appleAvailable, googleAvailable, signInWithApple, signInWithGoogle } from '../lib/socialAuth';
+import Svg, { Path } from 'react-native-svg';
 import { supabase, supabaseHost } from '../lib/supabase';
 import { fonts } from '../theme/colors';
 import { useTheme } from '../theme/ThemeProvider';
@@ -75,6 +77,19 @@ export default function Welcome() {
     if (e) setError(/invalid/i.test(e.message) ? 'That email and password don’t match.' : e.message);
   };
 
+  const social = async (which: 'apple' | 'google') => {
+    setError(null);
+    clearLinkError();
+    setBusy(true);
+    try {
+      await (which === 'apple' ? signInWithApple() : signInWithGoogle());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Couldn’t sign you in. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const shownError = error ?? linkError;
 
   return (
@@ -92,6 +107,17 @@ export default function Welcome() {
                 <T variant="title">Welcome to Nooks Owl</T>
                 <T muted>A quiet corner to talk with kind strangers, about anything.</T>
               </View>
+              {appleAvailable || googleAvailable ? (
+                <View style={{ gap: 10 }}>
+                  {appleAvailable ? <AppleButton onPress={() => social('apple')} disabled={busy} /> : null}
+                  {googleAvailable ? <GoogleButton onPress={() => social('google')} disabled={busy} /> : null}
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 }}>
+                    <View style={{ flex: 1, height: 0.5, backgroundColor: colors.border2 }} />
+                    <T variant="small" muted>or use email</T>
+                    <View style={{ flex: 1, height: 0.5, backgroundColor: colors.border2 }} />
+                  </View>
+                </View>
+              ) : null}
               <View style={{ gap: 14 }}>
                 <Field
                   label="Email"
@@ -177,5 +203,48 @@ export default function Welcome() {
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+/** Apple's own "Sign in with Apple" button (black, or white in dark mode), as Apple requires. */
+function AppleButton({ onPress, disabled }: { onPress: () => void; disabled?: boolean }) {
+  const { isDark } = useTheme();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const Apple = require('expo-apple-authentication') as typeof import('expo-apple-authentication');
+  return (
+    <View pointerEvents={disabled ? 'none' : 'auto'} style={{ opacity: disabled ? 0.6 : 1 }}>
+      <Apple.AppleAuthenticationButton
+        buttonType={Apple.AppleAuthenticationButtonType.CONTINUE}
+        buttonStyle={isDark ? Apple.AppleAuthenticationButtonStyle.WHITE : Apple.AppleAuthenticationButtonStyle.BLACK}
+        cornerRadius={25}
+        style={{ height: 50 }}
+        onPress={onPress}
+      />
+    </View>
+  );
+}
+
+/** "Continue with Google", following Google's button guidelines (white with the G logo). */
+function GoogleButton({ onPress, disabled }: { onPress: () => void; disabled?: boolean }) {
+  return (
+    <PressableScale
+      accessibilityRole="button"
+      accessibilityLabel="Continue with Google"
+      feedback="tap"
+      disabled={disabled}
+      onPress={onPress}
+      style={{
+        height: 50, borderRadius: 25, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+        backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#DADCE0', opacity: disabled ? 0.6 : 1,
+      }}
+    >
+      <Svg width={20} height={20} viewBox="0 0 48 48">
+        <Path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
+        <Path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+        <Path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+        <Path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
+      </Svg>
+      <Text style={{ fontFamily: fonts.bodySemi, fontSize: 16, color: '#1F1F1F' }}>Continue with Google</Text>
+    </PressableScale>
   );
 }

@@ -58,20 +58,10 @@ export function TopicCard({
 }) {
   const { colors } = useTheme();
   const styled = !!cardStyle(topic.style);
-  const ink = styled ? '#FFFFFF' : colors.text;
-  const sub = styled ? 'rgba(255,255,255,0.78)' : colors.muted;
   const meta = [topic.city, topic.languages.slice(0, 2).join(', ')].filter(Boolean).join(' · ');
 
   return (
-    <View
-      style={{
-        borderRadius: 22, padding: 16, gap: 12, overflow: 'hidden',
-        backgroundColor: styled ? 'transparent' : colors.card,
-        minHeight: styled ? 210 : undefined,
-      }}
-    >
-      <CardBackground styleKey={topic.style} />
-
+    <View style={{ borderRadius: 22, padding: 16, gap: 12, backgroundColor: colors.card }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Pressable
           accessibilityRole="button"
@@ -82,82 +72,71 @@ export function TopicCard({
         >
           <Avatar name={topic.username} path={topic.avatar_path} />
           <View style={{ flex: 1, gap: 2 }}>
-            <T variant="label" style={{ color: ink }}>{topic.username}</T>
-            {meta ? <T variant="small" numberOfLines={1} style={{ color: sub }}>{meta}</T> : null}
+            <T variant="label">{topic.username}</T>
+            {meta ? <T variant="small" muted numberOfLines={1}>{meta}</T> : null}
           </View>
         </Pressable>
-        <T variant="small" style={{ color: sub }}>{timeAgo(topic.created_at)}</T>
+        <T variant="small" muted>{timeAgo(topic.created_at)}</T>
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10, flexGrow: styled ? 1 : 0 }}>
+      {/* The topic itself; a coloured style fills just this panel. */}
+      <View
+        style={
+          styled
+            ? { borderRadius: 18, padding: 18, minHeight: 130, overflow: 'hidden', flexDirection: 'row', alignItems: 'flex-start', gap: 10 }
+            : { flexDirection: 'row', alignItems: 'flex-start', gap: 10 }
+        }
+      >
+        <CardBackground styleKey={topic.style} />
         <Text
           style={{
             flex: 1,
             fontFamily: fonts.displaySemi,
-            fontSize: styled ? 24 : 20,
-            lineHeight: styled ? 30 : 25,
-            color: ink,
+            fontSize: styled ? 23 : 20,
+            lineHeight: styled ? 29 : 25,
+            color: styled ? '#FFFFFF' : colors.text,
           }}
         >
           {topic.body}
         </Text>
-        {topic.mood ? <Text accessibilityLabel={`Mood ${topic.mood}`} style={{ fontSize: styled ? 36 : 28 }}>{topic.mood}</Text> : null}
+        {topic.mood ? <Text accessibilityLabel={`Mood ${topic.mood}`} style={{ fontSize: styled ? 34 : 28 }}>{topic.mood}</Text> : null}
       </View>
+
       {topic.tags.length ? (
-        <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: styled ? '#FFFFFF' : colors.accentText, marginTop: -4, opacity: styled ? 0.92 : 1 }}>
+        <Text style={{ fontFamily: fonts.bodySemi, fontSize: 13, color: colors.accentText, marginTop: -2 }}>
           {topic.tags.map((t) => `#${t}`).join('  ')}
         </Text>
       ) : null}
 
       {topic.last_comment_body ? (
-        <Text style={{ fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: sub }} numberOfLines={2}>
-          <Text style={{ fontFamily: fonts.bodySemi, color: ink }}>{topic.last_comment_username} </Text>
+        <Text style={{ fontFamily: fonts.body, fontSize: 14, lineHeight: 20, color: colors.muted }} numberOfLines={2}>
+          <Text style={{ fontFamily: fonts.bodySemi, color: colors.text }}>{topic.last_comment_username} </Text>
           {topic.last_comment_body}
         </Text>
       ) : null}
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: styled ? 0 : -8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginHorizontal: -8 }}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Like, ${topic.like_count} likes`}
           accessibilityState={{ selected: topic.liked_by_me }}
           onPress={onLike}
-          style={[pill, styled ? glass : null]}
+          style={pill}
         >
-          <Icon
-            name="heart"
-            filled={topic.liked_by_me}
-            color={topic.liked_by_me ? (styled ? '#FFE4EC' : colors.like) : sub}
-            size={20}
-          />
-          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 14, color: topic.liked_by_me && !styled ? colors.like : styled ? '#FFFFFF' : colors.muted }}>
-            {topic.like_count}
-          </Text>
+          <Icon name="heart" filled={topic.liked_by_me} color={topic.liked_by_me ? colors.like : colors.muted} size={20} />
+          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 14, color: topic.liked_by_me ? colors.like : colors.muted }}>{topic.like_count}</Text>
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Comments, ${topic.comment_count}`}
-          onPress={onComments}
-          style={[pill, styled ? glass : null]}
-        >
-          <Icon name="comment" color={sub} size={20} />
-          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 14, color: styled ? '#FFFFFF' : colors.muted }}>{topic.comment_count}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Comments, ${topic.comment_count}`} onPress={onComments} style={pill}>
+          <Icon name="comment" color={colors.muted} size={20} />
+          <Text style={{ fontFamily: fonts.bodySemi, fontSize: 14, color: colors.muted }}>{topic.comment_count}</Text>
         </Pressable>
       </View>
 
       {!isMine ? (
-        <Button
-          kind="secondary"
-          title="Send a message"
-          icon={<Icon name="message" size={18} color={ink} />}
-          onPress={onMessage}
-          color={styled ? '#FFFFFF' : undefined}
-          style={styled ? { backgroundColor: 'rgba(255,255,255,0.22)' } : undefined}
-        />
+        <Button kind="secondary" title="Send a message" icon={<Icon name="message" size={18} color={colors.text} />} onPress={onMessage} />
       ) : null}
     </View>
   );
 }
 
-const pill = { minHeight: 38, paddingHorizontal: 10, borderRadius: 19, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6 };
-const glass = { backgroundColor: 'rgba(255,255,255,0.18)' };
+const pill = { minHeight: 40, paddingHorizontal: 8, flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6 };

@@ -15,7 +15,8 @@
         "UIBackgroundModes": [
           "audio"
         ]
-      }
+      },
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "com.nooksowl.app",
@@ -92,7 +93,8 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-apple-authentication"
     ],
     "experiments": {
       "typedRoutes": false
