@@ -14,14 +14,14 @@ begin
 
   -- People
   for p in select * from (values
-    ('meera.reads', 1997, 'Pune',      'woman', 'Bookworm and chai person. Ask me what I am reading.', array['English','Hindi','Marathi'], array['Books','Chai']),
-    ('arjun_runs',  1993, 'Bengaluru', 'man',   'Marathon training at 5am. Talk to me about running or startups.', array['English','Kannada'], array['Running','Startups']),
-    ('priya.k',     1999, 'Chennai',   'woman', 'Learning guitar badly. Carnatic music fan.', array['English','Tamil'], array['Music','Guitar']),
-    ('rohan.cooks', 1995, 'Delhi',     'man',   'I cook, you tell me what to cook next.', array['English','Hindi','Punjabi'], array['Cooking','Food']),
-    ('sana_travels',1996, 'Hyderabad', 'woman', 'Solo trips, mountains, and bad sunsets photos.', array['English','Urdu','Telugu'], array['Travel','Photography']),
-    ('kabir.dev',   1992, 'Mumbai',    'man',   'Software engineer. Night owl. Happy to help with code or careers.', array['English','Hindi'], array['Tech','Careers']),
-    ('ananya.art',  1998, 'Kolkata',   'woman', 'Watercolours and long walks. Bengali films forever.', array['English','Bengali'], array['Art','Movies']),
-    ('vikram.chess',1990, 'Jaipur',    'man',   'Chess, history and good conversations.', array['English','Hindi'], array['Chess','History'])
+    ('emma.reads', 1997, 'London', 'woman', 'Bookworm and tea person. Ask me what I am reading.', array['English'], array['Books','Tea']),
+    ('lucas_runs', 1993, 'Berlin', 'man', 'Marathon training at 5am. Talk to me about running or startups.', array['English','German'], array['Running','Startups']),
+    ('sofia.k', 1999, 'Madrid', 'woman', 'Learning guitar badly. Flamenco fan.', array['English','Spanish'], array['Music','Guitar']),
+    ('noah.cooks', 1995, 'Toronto', 'man', 'I cook, you tell me what to cook next.', array['English','French'], array['Cooking','Food']),
+    ('maya_travels', 1996, 'Sydney', 'woman', 'Solo trips, mountains, and bad sunset photos.', array['English'], array['Travel','Photography']),
+    ('leo.dev', 1992, 'New York', 'man', 'Software engineer. Night owl. Happy to help with code or careers.', array['English'], array['Tech','Careers']),
+    ('chloe.art', 1998, 'Paris', 'woman', 'Watercolours and long walks. French films forever.', array['English','French'], array['Art','Movies']),
+    ('daniel.chess', 1990, 'Dublin', 'man', 'Chess, history and good conversations.', array['English'], array['Chess','History'])
   ) as v(username, birth_year, city, gender, bio, languages, interests)
   loop
     t := gen_random_uuid();
@@ -39,8 +39,8 @@ begin
     (ids[1], 'Just finished The Midnight Library. Anyone want to talk about regrets and second chances?', array['books'], now() - interval '12 minutes'),
     (ids[2], 'First half marathon this Sunday and I am nervous. Runners, any last-minute advice?', array['running','fitness'], now() - interval '35 minutes'),
     (ids[3], 'Can''t sleep. Up for a calm chat about anything except work.', array['nightowls'], now() - interval '50 minutes'),
-    (ids[4], 'Made biryani for the first time. It was edible! Share your best cooking fail.', array['cooking','food'], now() - interval '1 hour 20 minutes'),
-    (ids[5], 'Planning a solo trip to Spiti. Has anyone been? Tell me everything.', array['travel'], now() - interval '2 hours'),
+    (ids[4], 'Made ramen from scratch for the first time. It was edible! Share your best cooking fail.', array['cooking','food'], now() - interval '1 hour 20 minutes'),
+    (ids[5], 'Planning a solo trip to Iceland. Has anyone been? Tell me everything.', array['travel'], now() - interval '2 hours'),
     (ids[6], 'Switching careers into tech at 30. Happy to share what worked for me.', array['careers','tech'], now() - interval '3 hours'),
     (ids[7], 'Practising my English speaking. Looking for a friendly 10-minute chat.', array['english','language'], now() - interval '4 hours'),
     (ids[8], 'Who wants to argue about the greatest chess player of all time?', array['chess'], now() - interval '5 hours');
@@ -69,7 +69,7 @@ begin
   insert into public.messages (conversation_id, sender_id, body, created_at) values
     (c, ids[1], 'Hey! Loved your topic about books. What are you reading right now?', now() - interval '50 minutes'),
     (c, me,     'Just started Sapiens. You?', now() - interval '45 minutes'),
-    (c, ids[1], 'Re-reading Harry Potter, no shame 😄 Free for a quick call later?', now() - interval '40 minutes'),
+    (c, ids[1], 'Re-reading Pride and Prejudice, no shame 😄 Free for a quick call later?', now() - interval '40 minutes'),
     (c, me,     'Sure, ping me in the evening!', now() - interval '38 minutes');
 
   insert into public.conversations (user_a, user_b, created_by, status, created_at)
@@ -81,7 +81,7 @@ begin
   insert into public.conversations (user_a, user_b, created_by, status, created_at)
   values (me, ids[5], ids[5], 'active', now() - interval '3 days') returning id into c;
   insert into public.messages (conversation_id, sender_id, body, created_at) values
-    (c, ids[5], 'Sending you the Spiti photos I promised 🏔️', now() - interval '6 hours');
+    (c, ids[5], 'Sending you the Iceland photos I promised 🏔️', now() - interval '6 hours');
 
   -- A message request waiting for the reviewer
   insert into public.conversations (user_a, user_b, created_by, status, created_at)
