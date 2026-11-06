@@ -435,3 +435,104 @@ export async function adminListReports(): Promise<AdminReport[]> {
 export async function adminResolveReport(reportId: string, action: 'dismiss' | 'hide_content' | 'ban_user') {
   check(await supabase.rpc('admin_resolve_report', { p_report_id: reportId, p_action: action }));
 }
+
+// ---------------------------------------------------------------------------
+// Voice rooms
+// ---------------------------------------------------------------------------
+
+export type LiveRoom = {
+  id: string;
+  title: string;
+  tag: string | null;
+  language: string | null;
+  is_private: boolean;
+  created_at: string;
+  host_id: string;
+  host_username: string;
+  host_avatar: string | null;
+  speaker_count: number;
+  listener_count: number;
+  i_am_in: boolean;
+  speaker_avatars: (string | null)[];
+};
+
+export type RoomRole = 'host' | 'speaker' | 'listener';
+
+export type RoomMember = {
+  user_id: string;
+  username: string;
+  avatar_path: string | null;
+  gender: string | null;
+  role: RoomRole;
+  hand_raised: boolean;
+  hand_raised_at: string | null;
+  muted_by_host: boolean;
+  agora_uid: number;
+  joined_at: string;
+};
+
+export type RoomInfo = {
+  id: string;
+  host_id: string;
+  title: string;
+  tag: string | null;
+  language: string | null;
+  is_private: boolean;
+  status: 'live' | 'ended';
+  max_speakers: number;
+};
+
+async function rpcError<T>(p: PromiseLike<{ data: T; error: { message: string } | null }>): Promise<T> {
+  const { data, error } = await p;
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export const listLiveRooms = () => rpcError(supabase.rpc('list_live_rooms')) as Promise<LiveRoom[]>;
+export const createRoom = (title: string, tag: string | null, language: string | null, isPrivate: boolean) =>
+  rpcError(supabase.rpc('create_room', { p_title: title, p_tag: tag, p_language: language, p_private: isPrivate })) as Promise<string>;
+export const joinRoom = (roomId: string, inviteCode?: string) =>
+  rpcError(supabase.rpc('join_room', { p_room: roomId, p_invite_code: inviteCode ?? null })) as Promise<RoomRole>;
+export const leaveRoom = (roomId: string) => rpcError(supabase.rpc('leave_room', { p_room: roomId }));
+export const roomHeartbeat = (roomId: string) =>
+  rpcError(supabase.rpc('room_heartbeat', { p_room: roomId })) as Promise<RoomRole | 'left' | 'ended'>;
+export const raiseHand = (roomId: string, up: boolean) => rpcError(supabase.rpc('raise_hand', { p_room: roomId, p_up: up }));
+export const setRoomRole = (roomId: string, userId: string, role: 'speaker' | 'listener') =>
+  rpcError(supabase.rpc('room_set_role', { p_room: roomId, p_user: userId, p_role: role }));
+export const stepDown = (roomId: string) => rpcError(supabase.rpc('room_step_down', { p_room: roomId }));
+export const muteInRoom = (roomId: string, userId: string, muted: boolean) =>
+  rpcError(supabase.rpc('room_mute', { p_room: roomId, p_user: userId, p_muted: muted }));
+export const removeFromRoom = (roomId: string, userId: string) =>
+  rpcError(supabase.rpc('room_remove', { p_room: roomId, p_user: userId }));
+export const endRoom = (roomId: string) => rpcError(supabase.rpc('end_room', { p_room: roomId }));
+export const getRoomMembers = (roomId: string) =>
+  rpcError(supabase.rpc('get_room_members', { p_room: roomId })) as Promise<RoomMember[]>;
+export const getRoomInviteCode = (roomId: string) =>
+  rpcError(supabase.rpc('room_invite_code', { p_room: roomId })) as Promise<string | null>;
+export const findRoomByCode = (code: string) =>
+  rpcError(supabase.rpc('find_room_by_code', { p_code: code })) as Promise<string | null>;
+
+export async function getRoom(roomId: string): Promise<RoomInfo | null> {
+  const { data, error } = await supabase
+    .from('rooms')
+    .select('id, host_id, title, tag, language, is_private, status, max_speakers')
+    .eq('id', roomId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data as RoomInfo | null;
+}
+
+export async function getRoomToken(roomId: string): Promise<{ token: string; channel: string; appId: string; uid: number; role: RoomRole; canSpeak: boolean }> {
+  const { data, error } = await supabase.functions.invoke('agora-token', { body: { roomId } });
+  if (error) {
+    const ctx = (error as { context?: Response }).context;
+    const body = ctx && typeof ctx.json === 'function' ? await ctx.json().catch(() => null) : null;
+    throw new Error(body?.error ?? error.message);
+  }
+  return data;
+}
+
+export async function reportRoom(roomId: string, userId: string | null, reason: string) {
+  const reporter_id = await me();
+  check(await supabase.from('reports').insert({ reporter_id, room_id: roomId, target_user_id: userId, reason }));
+}

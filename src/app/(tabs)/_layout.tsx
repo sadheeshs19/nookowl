@@ -76,6 +76,7 @@ export default function TabsLayout() {
     >
       <Tabs.Screen name="index" options={{ title: 'Topics', tabBarIcon: icon('mic') }} />
       <Tabs.Screen name="people" options={{ title: 'People', tabBarIcon: icon('people') }} />
+      <Tabs.Screen name="rooms" options={{ title: 'Rooms', tabBarIcon: icon('rooms') }} />
       <Tabs.Screen
         name="requests"
         options={{ title: 'Requests', tabBarIcon: icon('phoneIn'), tabBarBadge: badges.requests || undefined }}

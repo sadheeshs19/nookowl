@@ -1,5 +1,5 @@
-// Supabase Edge Function: returns an Agora RTC token for a call the signed-in
-// user is part of. Deploy with:
+// Supabase Edge Function: returns an Agora RTC token for a call or voice room the
+// signed-in user is part of. Deploy with:
 //   supabase secrets set AGORA_APP_ID=... AGORA_APP_CERTIFICATE=...
 //   supabase functions deploy agora-token
 import { createClient } from 'npm:@supabase/supabase-js@2';
@@ -35,7 +35,37 @@ Deno.serve(async (req) => {
   const { data: auth } = await supabase.auth.getUser(jwt);
   if (!auth.user) return json({ error: 'Not signed in' }, 401);
 
-  const { callId } = await req.json().catch(() => ({ callId: null }));
+  const body = await req.json().catch(() => ({}));
+  const { callId, roomId } = body as { callId?: string; roomId?: string };
+
+  // Voice rooms: speakers (and the host) may talk, everyone else only listens.
+  // The role and the numeric uid come from the database, never from the app.
+  if (roomId) {
+    const { data: room } = await supabase.from('rooms').select('id, status').eq('id', roomId).maybeSingle();
+    if (!room) return json({ error: 'Room not found' }, 404);
+    if (room.status !== 'live') return json({ error: 'This room has ended' }, 410);
+    const { data: member } = await supabase
+      .from('room_members')
+      .select('role, agora_uid, left_at, muted_by_host')
+      .eq('room_id', roomId)
+      .eq('user_id', auth.user.id)
+      .maybeSingle();
+    if (!member || member.left_at) return json({ error: 'Join the room first' }, 403);
+    const speaker = member.role === 'host' || (member.role === 'speaker' && !member.muted_by_host);
+    const expire = 3600;
+    const channel = `room_${room.id}`;
+    const token = RtcTokenBuilder.buildTokenWithUid(
+      appId,
+      certificate,
+      channel,
+      member.agora_uid,
+      speaker ? RtcRole.PUBLISHER : RtcRole.SUBSCRIBER,
+      expire,
+      expire,
+    );
+    return json({ token, channel, appId, uid: member.agora_uid, role: member.role, canSpeak: speaker });
+  }
+
   if (!callId) return json({ error: 'callId is required' }, 400);
 
   // Row level security only returns calls this user is part of.

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from './supabase';
 
 type Change = {
-  table: 'messages' | 'calls' | 'call_requests' | 'conversations' | 'hoots';
+  table: 'messages' | 'calls' | 'call_requests' | 'conversations' | 'hoots' | 'rooms' | 'room_members';
   event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*';
   filter?: string;
 };

@@ -41,7 +41,10 @@ export type IconName =
   | 'logout'
   | 'trash'
   | 'chevronRight'
-  | 'card';
+  | 'card'
+  | 'rooms'
+  | 'hand'
+  | 'link';
 
 export function Icon({
   name,
@@ -129,6 +132,16 @@ export function Icon({
           <Path {...common} d="M8 15h5M8 11h8" />
         </>
       )}
+      {name === 'rooms' && (
+        <>
+          <Circle {...common} cx={12} cy={12} r={2.5} />
+          <Path {...common} d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M5 5a10 10 0 0 0 0 14M19 5a10 10 0 0 1 0 14" />
+        </>
+      )}
+      {name === 'hand' && (
+        <Path {...common} d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v6.5M14 10.5V5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-4.6-2.2L3.6 16a1.6 1.6 0 0 1 2.4-2.1L8 15.5" />
+      )}
+      {name === 'link' && <Path {...common} d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />}
       {name === 'female' && (
         <>
           <Circle cx={12} cy={4.2} r={2.6} fill={color} />
