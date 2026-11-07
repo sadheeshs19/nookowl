@@ -93,10 +93,9 @@ export default function Onboarding() {
     }
   };
 
-  if (!promised) return <PrivacyPromise onContinue={() => setPromised(true)} />;
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <PrivacyPromise visible={!promised} onContinue={() => setPromised(true)} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={{ padding: 24, gap: 20 }} keyboardShouldPersistTaps="handled">
           <View style={{ gap: 6 }}>
