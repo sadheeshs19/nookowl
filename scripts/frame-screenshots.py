@@ -133,6 +133,12 @@ def frame(shot_path, n, size, kind):
 
 def main(src, dst):
     src, dst = Path(src), Path(dst)
+    # Optional captions.json in the input folder: {"1": ["Title", "Sub-line"], ...}
+    custom = src / 'captions.json'
+    if custom.exists():
+        import json
+        CAPTIONS.clear()
+        CAPTIONS.update({int(k): tuple(v) for k, v in json.loads(custom.read_text()).items()})
     made = 0
     for name, (size, kind) in SIZES.items():
         folder = src / 'tablet' if kind == 'tablet' and (src / 'tablet').exists() else src
