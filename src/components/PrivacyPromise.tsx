@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Animated, Easing, Modal, Text, View } from 'react-native';
 import { haptic } from '../lib/haptics';
 import { fonts } from '../theme/colors';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+import { BANNER_H, BANNER_W, LibraryBanner } from './LibraryBanner';
 import { NestIcon } from './NestLogo';
 import { PressableScale } from './ui';
 
@@ -14,7 +16,7 @@ const PARTS = 6; // welcome, owl, title, privacy line, kindness, button
 
 /**
  * A small white pop-up shown once, right after someone signs up:
- * a welcome, the owl in its nest, a privacy promise, and a note to be kind.
+ * a welcome over a little library, the owl in its nest, a privacy promise, and a note to be kind.
  * Everything drifts in slowly, and the owl gently bobs in its nest.
  */
 export function PrivacyPromise({ visible, onContinue }: { visible: boolean; onContinue: () => void }) {
@@ -88,34 +90,75 @@ export function PrivacyPromise({ visible, onContinue }: { visible: boolean; onCo
             ],
           }}
         >
-          <Animated.Text
-            style={[
-              { fontFamily: fonts.bodySemi, fontSize: 13, letterSpacing: 2, color: ACCENT, marginBottom: 14 },
-              rise(0, 8),
-            ]}
-          >
-            WELCOME TO NOOKS
-          </Animated.Text>
-
+          {/* A little library: bookshelves behind the owl, with the welcome on top. */}
           <Animated.View
-            style={[
-              { width: 116, height: 116, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-              { opacity: parts[1], transform: [{ scale: parts[1].interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) }] },
-            ]}
+            style={{
+              alignSelf: 'stretch',
+              marginTop: -24,
+              marginHorizontal: -24,
+              marginBottom: 18,
+              aspectRatio: BANNER_W / BANNER_H,
+              borderTopLeftRadius: 30,
+              borderTopRightRadius: 30,
+              overflow: 'hidden',
+            }}
           >
-            {/* A warm circle that slowly breathes behind the owl. */}
+            <LibraryBanner />
+            {/* Warm lamplight that slowly glows around the nest */}
+            <Animated.View
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: -40,
+                alignItems: 'center',
+                opacity: glow.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0.8] }),
+                transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1.06] }) }],
+              }}
+            >
+              <Svg width={190} height={190}>
+                <Defs>
+                  <RadialGradient id="lamp" cx="50%" cy="50%" r="50%">
+                    <Stop offset="0" stopColor="#FFC98A" stopOpacity="0.85" />
+                    <Stop offset="0.5" stopColor="#FFB067" stopOpacity="0.3" />
+                    <Stop offset="1" stopColor="#FFB067" stopOpacity="0" />
+                  </RadialGradient>
+                </Defs>
+                <Circle cx={95} cy={95} r={95} fill="url(#lamp)" />
+              </Svg>
+            </Animated.View>
+
+            <Animated.Text
+              style={[
+                {
+                  position: 'absolute',
+                  top: 15,
+                  alignSelf: 'center',
+                  fontFamily: fonts.bodySemi,
+                  fontSize: 13,
+                  letterSpacing: 2.4,
+                  color: '#FFFFFF',
+                },
+                rise(0, 8),
+              ]}
+            >
+              WELCOME TO NOOKS
+            </Animated.Text>
+
             <Animated.View
               style={{
                 position: 'absolute',
-                width: 116,
-                height: 116,
-                borderRadius: 58,
-                backgroundColor: '#FFF1E6',
-                transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1.05] }) }],
+                bottom: -6,
+                alignSelf: 'center',
+                opacity: parts[1],
+                transform: [
+                  { scale: parts[1].interpolate({ inputRange: [0, 1], outputRange: [0.7, 1] }) },
+                  { translateY: float.interpolate({ inputRange: [0, 1], outputRange: [2, -4] }) },
+                ],
               }}
-            />
-            <Animated.View style={{ transform: [{ translateY: float.interpolate({ inputRange: [0, 1], outputRange: [2, -4] }) }] }}>
-              <NestIcon size={88} />
+            >
+              <NestIcon size={96} />
             </Animated.View>
           </Animated.View>
 
