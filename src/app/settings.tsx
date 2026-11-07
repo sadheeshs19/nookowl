@@ -19,6 +19,13 @@ export default function SettingsScreen() {
   const [deleting, setDeleting] = useState(false);
   const [sounds, setSounds] = useSoundsSetting();
 
+  // Leave the signed-in screens behind and land on Welcome. Without this, Settings
+  // stays on top of the stack and shows an empty page once the profile is gone.
+  const goToWelcome = () => {
+    if (router.canDismiss()) router.dismissAll();
+    router.replace('/welcome');
+  };
+
   const changeGender = async (g: Gender) => {
     try {
       await setGender(g);
@@ -78,6 +85,7 @@ export default function SettingsScreen() {
             try {
               await deleteMyAccount();
               await signOut().catch(() => {});
+              goToWelcome();
             } catch (e) {
               Alert.alert('Couldn’t delete your account', `${e instanceof Error ? e.message : ''} Try again, or email us from Support.`);
             } finally {
@@ -204,6 +212,7 @@ export default function SettingsScreen() {
             onPress={async () => {
               await Promise.race([unregisterPush(), new Promise((r) => setTimeout(r, 3000))]);
               await signOut();
+              goToWelcome();
             }}
           />
           <Row
