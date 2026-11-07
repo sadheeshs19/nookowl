@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LanguagePicker } from '../components/LanguagePicker';
+import { PrivacyPromise } from '../components/PrivacyPromise';
 import { Button, Chip, Field, T, Toggle } from '../components/ui';
 import { isUsernameTaken, saveProfile } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -27,6 +28,8 @@ export default function Onboarding() {
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // New people see our privacy promise first, then set up their profile.
+  const [promised, setPromised] = useState(false);
 
   const toggle = (list: string[], set: (v: string[]) => void, v: string) =>
     set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
@@ -89,6 +92,8 @@ export default function Onboarding() {
       setBusy(false);
     }
   };
+
+  if (!promised) return <PrivacyPromise onContinue={() => setPromised(true)} />;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
